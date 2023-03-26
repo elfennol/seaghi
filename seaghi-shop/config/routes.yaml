@@ -1,0 +1,6 @@
+controllers:
+    resource:
+        path: '../src/Shop/Infrastructure/HttpApi/Controller/'
+        namespace: 'App\Shop\Infrastructure\HttpApi\Controller'
+    type: attribute
+    prefix: '/shop'

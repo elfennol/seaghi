@@ -1,0 +1,9 @@
+FROM php:8.2-cli-alpine
+
+RUN curl -sS -L https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar -o /phpstan.phar\
+    && mv /phpstan.phar /usr/bin/phpstan \
+    && chmod +x /usr/bin/phpstan
+
+WORKDIR /repo
+
+ENTRYPOINT ["phpstan"]

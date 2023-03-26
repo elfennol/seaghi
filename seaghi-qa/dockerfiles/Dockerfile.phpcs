@@ -1,0 +1,9 @@
+FROM php:8.2-cli-alpine
+
+RUN curl -sS -L https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar -o /phpcs.phar\
+    && mv /phpcs.phar /usr/bin/phpcs \
+    && chmod +x /usr/bin/phpcs
+
+WORKDIR /repo
+
+ENTRYPOINT ["phpcs"]

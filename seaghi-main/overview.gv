@@ -1,0 +1,18 @@
+digraph {
+    Buy [
+       shape = box
+    ]
+    Redis [
+        shape = cylinder
+    ]
+    Buy -> Shop
+    Shop ->  Account [
+        label = "HTTP API \n (Sync)"
+    ]
+    Shop -> Redis [
+        label = "Message \n (Async)"
+    ]
+    Redis -> Battle [
+        label = "Message"
+    ]
+}

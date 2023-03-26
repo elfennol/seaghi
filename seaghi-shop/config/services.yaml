@@ -1,0 +1,53 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $accountApiUrl: '%env(ACCOUNT_API_URL)%'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/Tests/'
+            - '../src/Shop/Port/'
+            - '../src/Shop/Entity/'
+
+    App\Shop\Infrastructure\HttpApi\Controller\:
+        resource: '../src/Shop/Infrastructure/HttpApi/Controller/'
+        tags: [ 'controller.service_arguments']
+
+    get_property_normalizer:
+        class: Symfony\Component\Serializer\Normalizer\PropertyNormalizer
+        arguments: ['@serializer.mapping.class_metadata_factory',
+                    '@serializer.name_converter.camel_case_to_snake_case']
+        tags: [serializer.normalizer]
+
+    Symfony\Component\Messenger\Transport\Serialization\Serializer:
+        arguments:
+            $format: 'json'
+    Symfony\Component\Messenger\Transport\Serialization\SerializerInterface $msgJsonSerializer: '@Symfony\Component\Messenger\Transport\Serialization\Serializer'
+
+when@prod: &prod
+    services:
+        # Port IN
+        App\Shop\Port\In\BuyItemPort: '@App\Shop\Application\UseCase\BuyItem'
+        App\Shop\Port\In\ListItemPort: '@App\Shop\Application\UseCase\ListItem'
+
+        # Port OUT
+        App\Shop\Port\Out\FindEntityPort: '@App\Shop\Infrastructure\Persistence\CrudQuery'
+        App\Shop\Port\Out\PersistEntityPort: '@App\Shop\Infrastructure\Persistence\CrudQuery'
+        App\Shop\Port\Out\SearchMonsterPort: '@App\Shop\Infrastructure\Persistence\SearchMonsterQuery'
+        App\Shop\Port\Out\SendMessagePort: '@App\Shop\Infrastructure\Messenger\SendMessage'
+        App\Shop\Port\Out\WithdrawFromAccountPort: '@App\Shop\Infrastructure\Client\AccountClient'
+
+when@dev:
+    <<: *prod

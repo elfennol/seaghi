@@ -1,0 +1,32 @@
+deptrac:
+    paths:
+        - ./src
+    exclude_files:
+        - '#.*Test.*#'
+    layers:
+        -   name: Entity
+            collectors:
+                -   type: className
+                    regex: App\\Shop\\Entity\\.*
+        -   name: Application
+            collectors:
+                -   type: className
+                    regex: App\\Shop\\Application\\.*
+        -   name: Infrastructure
+            collectors:
+                -   type: className
+                    regex: App\\Shop\\Infrastructure\\.*
+        -   name: Port
+            collectors:
+                -   type: className
+                    regex: App\\Shop\\Port\\.*
+
+    ruleset:
+        Application:
+            - Port
+            - Entity
+        Infrastructure:
+            - Port
+            - Entity
+        Port:
+            - Entity

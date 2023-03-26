@@ -1,0 +1,11 @@
+FROM php:8.2-cli-alpine
+
+RUN apk add --no-cache graphviz ttf-freefont
+
+RUN curl -sS -L https://github.com/qossmic/deptrac/releases/latest/download/deptrac.phar -o /deptrac.phar\
+    && mv /deptrac.phar /usr/bin/deptrac \
+    && chmod +x /usr/bin/deptrac
+
+WORKDIR /repo
+
+ENTRYPOINT ["deptrac"]

@@ -1,0 +1,9 @@
+FROM php:8.2-cli-alpine
+
+RUN curl -sS -L https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar -o phpcbf.phar\
+    && mv /phpcbf.phar /usr/bin/phpcbf \
+    && chmod +x /usr/bin/phpcbf
+
+WORKDIR /repo
+
+ENTRYPOINT ["phpcbf"]

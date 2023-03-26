@@ -1,0 +1,46 @@
+# You can execute the requests directly in PHPStorm.
+# Base urls defined in http-client.env.json.
+
+#~~~~~~~~ Account ~~~~~~~~#
+#
+# Account simulate an external service to withdraw money.
+#
+
+### Account: withdraw
+GET {{account_base_url}}/withdraw
+Accept: application/json
+
+#~~~~~~~~ Shop ~~~~~~~~#
+#
+# Where you can buy monsters and send them to battle.
+#
+
+### Shop: list the monsters
+GET {{shop_base_url}}/monster/list?level_min=1&level_max=4
+Accept: application/json
+
+### Shop: buy a monster
+# When you buy a monster, this monster is sent to the battle.
+PUT {{shop_base_url}}/monster/buy/1
+Content-Type: application/json
+
+#~~~~~~~~ Battle ~~~~~~~~#
+#
+# Round one fight!
+#
+
+### Battle: list the monsters
+GET {{battle_base_url}}/monster/list
+Accept: application/json
+
+### Battle: show a monster
+GET {{battle_base_url}}/monster/1/show
+Accept: application/json
+
+### Battle: hit a monster
+PUT {{battle_base_url}}/monster/1/hit
+Content-Type: application/json
+
+### Battle: heal a monster
+PUT {{battle_base_url}}/monster/1/heal
+Content-Type: application/json

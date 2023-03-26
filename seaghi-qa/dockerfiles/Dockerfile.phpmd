@@ -1,0 +1,9 @@
+FROM php:8.2-cli-alpine
+
+RUN curl -sS -L https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar -o /phpmd.phar\
+    && mv /phpmd.phar /usr/bin/phpmd \
+    && chmod +x /usr/bin/phpmd
+
+WORKDIR /repo
+
+ENTRYPOINT ["phpmd"]

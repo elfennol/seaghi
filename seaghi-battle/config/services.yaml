@@ -1,0 +1,53 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/Tests/'
+            - '../src/Battle/Port/'
+            - '../src/Battle/Entity/'
+
+    App\Battle\Infrastructure\HttpApi\Controller\:
+        resource: '../src/Battle/Infrastructure/HttpApi/Controller/'
+        tags: ['controller.service_arguments']
+
+    get_property_normalizer:
+        class: Symfony\Component\Serializer\Normalizer\PropertyNormalizer
+        arguments: ['@serializer.mapping.class_metadata_factory', '@serializer.name_converter.camel_case_to_snake_case']
+        tags: [serializer.normalizer]
+
+    Symfony\Component\Messenger\Transport\Serialization\Serializer:
+        arguments:
+            $format: 'json'
+    Symfony\Component\Messenger\Transport\Serialization\SerializerInterface $msgJsonSerializer: '@Symfony\Component\Messenger\Transport\Serialization\Serializer'
+
+when@prod: &prod
+    services:
+        # Port IN
+        App\Battle\Port\In\HitMonsterPort: '@App\Battle\Application\UseCase\HitMonster'
+        App\Battle\Port\In\HealMonsterPort: '@App\Battle\Application\UseCase\HealMonster'
+        App\Battle\Port\In\ListMonsterPort: '@App\Battle\Application\UseCase\ListMonster'
+        App\Battle\Port\In\ShowMonsterPort: '@App\Battle\Application\UseCase\ShowMonster'
+        App\Battle\Port\In\SpawnMonsterPort: '@App\Battle\Application\UseCase\SpawnMonster'
+
+        # Port OUT
+        App\Battle\Port\Out\FindEntityPort: '@App\Battle\Infrastructure\Persistence\CrudQuery'
+        App\Battle\Port\Out\PersistEntityPort: '@App\Battle\Infrastructure\Persistence\CrudQuery'
+        App\Battle\Port\Out\FindAllEntityPort: '@App\Battle\Infrastructure\Persistence\CrudQuery'
+        App\Battle\Port\Out\FindAllEffectIndexedPort: '@App\Battle\Infrastructure\Persistence\EffectCrudQuery'
+        App\Battle\Port\Out\PickRandomIntPort: '@App\Battle\Infrastructure\Random\RandomProcessor'
+
+when@dev:
+    <<: *prod

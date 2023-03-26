@@ -1,0 +1,9 @@
+FROM php:8.2-cli-alpine
+
+RUN curl -sS -L https://phar.phpunit.de/phpunit-9.5.phar -o /phpunit.phar\
+    && mv /phpunit.phar /usr/bin/phpunit \
+    && chmod +x /usr/bin/phpunit
+
+WORKDIR /repo
+
+ENTRYPOINT ["phpunit"]

@@ -1,0 +1,6 @@
+controllers:
+    resource:
+        path: '../src/Battle/Infrastructure/HttpApi/Controller/'
+        namespace: 'App\Battle\Infrastructure\HttpApi\Controller'
+    type: attribute
+    prefix: '/battle'
