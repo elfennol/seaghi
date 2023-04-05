@@ -2,6 +2,8 @@
 
 Before you raise your arms to the sky with wet and watery eyes moaning with all your soul, please read my notes on this code: [seaghi-main/note.md](seaghi-main/note.md).
 
+If you want to share your thoughts on this architecture: [Your thoughts on this architecture](https://github.com/elfennol/seaghi/discussions/categories/your-thoughts-on-this-architecture)
+
 ## Install
 
 See [seaghi-main/INSTALL.md](seaghi-main/INSTALL.md).
