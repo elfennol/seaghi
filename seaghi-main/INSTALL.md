@@ -2,8 +2,8 @@
 
 ## General Requirement
 
-- PHP 8.2
-- Redis
+- PHP >= 8.4
+- Redis (Valkey)
 
 ## Account
 

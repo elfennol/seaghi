@@ -9,7 +9,7 @@ use App\Shop\Port\In\DataContract\SearchMonsterDto;
 use App\Shop\Port\In\ListItemPort;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 readonly class ListMonster
@@ -26,7 +26,10 @@ readonly class ListMonster
     #[Route('/monster/list', methods: ['GET'])]
     public function __invoke(Request $request): iterable
     {
-        $monsterListRequest = new MonsterListRequest((int)$request->get('level_min'), (int)$request->get('level_max'));
+        $monsterListRequest = new MonsterListRequest(
+            $request->query->has('level_min') ? $request->query->getInt('level_min') : null,
+            $request->query->has('level_max') ? $request->query->getInt('level_max') : null,
+        );
         $errors = $this->validator->validate($monsterListRequest);
 
         if (count($errors) > 0) {

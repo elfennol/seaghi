@@ -6,7 +6,7 @@ namespace App\Battle\Infrastructure\HttpApi\Controller;
 
 use App\Battle\Port\In\DataContract\HealMonsterDto;
 use App\Battle\Port\In\HealMonsterPort;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 readonly class HealMonster
 {

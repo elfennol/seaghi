@@ -1,5 +1,7 @@
 # QA
 
+TODO: remove the dockerfiles.
+
 ## General Requirement
 
 - Docker

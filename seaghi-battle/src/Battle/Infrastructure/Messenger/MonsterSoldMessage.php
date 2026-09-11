@@ -11,31 +11,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 readonly class MonsterSoldMessage
 {
-    /**
-     * @Assert\NotBlank
-     */
-    public string $firstName;
-
-    /**
-     * @Assert\NotNull
-     */
-    public string $lastName;
-
-    /**
-     * @Assert\NotBlank
-     */
-    public string $categoryCode;
-
-    /**
-     * @Assert\Positive
-     */
-    public int $level;
-
-    public function __construct(string $firstName, string $lastName, string $categoryCode, int $level)
-    {
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->categoryCode = $categoryCode;
-        $this->level = $level;
+    public function __construct(
+        #[Assert\NotBlank]
+        public string $firstName,
+        #[Assert\NotNull]
+        public string $lastName,
+        #[Assert\NotBlank]
+        public string $categoryCode,
+        #[Assert\Positive]
+        public int $level,
+    ) {
     }
 }

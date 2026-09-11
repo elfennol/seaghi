@@ -17,7 +17,6 @@ shop-init:
 	cd seaghi-shop &&\
 	composer install &&\
 	bin/console doctrine:database:drop --force &&\
-	bin/console doctrine:database:create &&\
 	bin/console doctrine:migrations:migrate -n &&\
 	cat fixtures.sql | xargs -0 bin/console dbal:run-sql
 
@@ -33,7 +32,6 @@ battle-init:
 	cd seaghi-battle &&\
 	composer install &&\
 	bin/console doctrine:database:drop --force &&\
-	bin/console doctrine:database:create &&\
 	bin/console doctrine:migrations:migrate -n
 
 .PHONY: battle-start

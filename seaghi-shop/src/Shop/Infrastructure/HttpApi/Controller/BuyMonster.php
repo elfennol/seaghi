@@ -6,7 +6,7 @@ namespace App\Shop\Infrastructure\HttpApi\Controller;
 
 use App\Shop\Port\In\BuyItemPort;
 use App\Shop\Port\In\DataContract\BuyItemDto;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 readonly class BuyMonster
 {

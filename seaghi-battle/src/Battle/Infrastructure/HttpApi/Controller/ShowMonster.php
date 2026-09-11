@@ -6,7 +6,7 @@ namespace App\Battle\Infrastructure\HttpApi\Controller;
 
 use App\Battle\Port\In\DataContract\ShowMonsterDto;
 use App\Battle\Port\In\ShowMonsterPort;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 readonly class ShowMonster
 {

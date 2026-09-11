@@ -4,9 +4,9 @@ These are my few notes on what might be a good pragmatic architecture for an app
 
 ## The Seaghi Architecture
 
-Architectures like the hexagonal architecture used with DDD are complex and heavy. Lot of code, mapping hell, bloated domain objects trap, too many technical questionings, books that needs hundreds of pages to explain the basis... Really productive architecture?
+Architectures like the hexagonal architecture used with DDD are complex and heavy. Lot of code, mapping hell, bloated domain objects trap, too many technical questionings, books that need hundreds of pages to explain the basis... Really productive architecture?
 
-The goal here is to take some good parts and compromise in order to have less code, less technical questionings, clear architecture, maintainable code and mostly KISS code. We want to:
+The goal here is to take some good parts and compromise to have less code, less technical questionings, clear architecture, maintainable code, and mostly KISS code. We want to:
 - Quickly see infrastructure dependencies (MySQL, Redis, files system, ...)
 - Quickly see functional use cases
 - Have use case classes with less technical vocabulary and more business language oriented
@@ -69,21 +69,21 @@ Infrastructure is here to speak with SQL DB, Redis, RabbitMQ, HTTP API, local fo
 
 The set of the use cases without being concerned with technical resources.
 
-I have at least 2 folders in Application:
+I have at least two folders in Application:
 - UseCase: objects with only one method.
-- Component: business rules used by use cases. If a method of a component uses data from an entity, we should pass the entire entity (and not just the fields we might need) in order to keep this method with a stable signature.
+- Component: business rules used by use cases. If a method of a component uses data from an entity, we should pass the entire entity (and not just the fields we might need) to keep this method with a stable signature.
 
 ## What is the Domain?
 
-No domain here (no domain objects, no value objects). I think it is the most controversial choice here.
+No domain here (no domain objects). I think it is the most controversial choice here.
 
-I want to reduce code and especially the mapping. I want to avoid the trap of bloated domain objects that have sometimes too much responsibility.
+I want to reduce code and especially the mapping. I want to avoid the trap of bloated domain objects that sometimes have too much responsibility.
 
 I use anemic Entity. An entity may be linked to an ORM, ODM, ... I choose to separate data and behavior. Business rules are split into services and apply to entities through their methods. This practice goes against the principles of DDD.
 
 We can define validations in the entity (via annotation, via setter). We can create special methods to keep some groups of properties valid. An entity can have an invalid state during its journey in a layer, and we can validate this entity just before crossing a layer.
 
-Where to put these entities ? Since there is a dependency with the infrastructure, I put these objects in a separate namespace to represent these dependencies (folder "Entity").
+Where to put these entities? Since there is a dependency with the infrastructure, I put these objects in a separate namespace to represent these dependencies (folder "Entity").
 
 - https://www.martinfowler.com/bliki/AnemicDomainModel.html
 - https://tmichel.github.io/2015/09/14/oo-controversies-tell-dont-ask-vs-the-web/
@@ -103,7 +103,7 @@ From "Patterns, Principles, and Practices of Domain-Driven Design" (Scott Millet
 
 UL: Ubiquitous Language (common language). 
 
-Two context here: Shop and Battle.
+Two contexts here: Shop and Battle.
 
 We can communicate between contexts in many ways:
 - By directly calling the objects (only via interfaces)
@@ -113,17 +113,21 @@ We can communicate between contexts in many ways:
 
 ## Data holder objects are immutable.
 
-Data holder objects (DTO, Message, ...) are immutable to avoid side effect and to ease the debug. It is a final and valid unit of data. We know the layer that created this data object, and we know that this object is not updated during its journey to the next layer.
+Data holder objects (DTO, Message, ...) are immutable to avoid side effects and to ease the debug. It is a final and valid unit of data. We know the layer that created this data object, and we know that this object is not updated during its journey to the next layer.
 
 DTO should be used only for one use case. Avoid several use cases using the same DTO.
 
-When used with controller, use one DTO for only one view. Do not one DTO for several views. Same for message handlers.
+When used with a controller, use one DTO for only one view. Do not use one DTO for several views. Same for message handlers.
 
-Some DTOs are shared between Application and Infrastructure. I consider an immutable data holder as a "data contract": we have access to these data, this data holder was created with valid data and this data has not been modified since the creation of this data holder (When we sign a contract, the contract is meant to be valid and should not be changed). So I put these DTOs in Port. Folder "DataContract" for general DTO and folder "MessageContract" for the message data holders.
+TODO: MessageContract?
+
+Some DTOs are shared between Application and Infrastructure. I consider an immutable data holder as a "data contract": we have access to these data, this data holder was created with valid data, and this data has not been modified since the creation of this data holder (When we sign a contract, the contract is meant to be valid and should not be changed). So I put these DTOs in Port. Folder "DataContract" for general DTO and folder "MessageContract" for the message data holders.
 
 ## Entities are mutable
 
-An Entity has an identity and change during its lifetime. For example a customer address may change, but it is still the same customer. The id, if not null, never change. In the case of an ORM, do not define a setter for the id; it is managed by the ORM.
+TODO: uuidv7?
+
+An Entity has an identity and change during its lifetime. For example, a customer address may change, but it is still the same customer. The id, if not null, never changes. In the case of an ORM, do not define a setter for the id; it is managed by the ORM.
 
 ## Controller
 
@@ -143,9 +147,9 @@ Prefer one public method in a use case. It's easier to see use cases at a glance
 
 A service must be stateless.
 
-## Short circuit ?
+## Short circuit?
 
-For example a Controller in Infrastructure only need raw data from an API. Do we need to call Application for that (there isn't really a use case) or do we call the API directly from the controller? The two solutions may be acceptable. If we don't call the Application then the use case does not appear in Application and there is a direct dependency between the controller view and the API. If we call the application then there is more code and more mapping but the use case appears.
+For example, a Controller in Infrastructure only needs raw data from an API. Do we need to call Application for that (there isn't really a use case), or do we call the API directly from the controller? The two solutions may be acceptable. If we don't call the Application, then the use case does not appear in Application, and there is a direct dependency between the controller view and the API. If we call the application, then there is more code and more mapping, but the use case appears.
 
 ## Autowiring (Symfony)
 
@@ -159,9 +163,9 @@ App\Battle\Port\In\HitMonsterPort: '@App\Battle\Application\UseCase\HitMonster'
 
 ## The exceptions
 
-Important rule: throw early catch late. It doesn't matter if the exception crosses multiple layers.
+Important rule: throw early, catch late. It doesn't matter if the exception crosses multiple layers.
 
-We may use standard PHP exception in Application.
+We may use a standard PHP exception in Application.
 
 ## Avoid inheritance
 
@@ -173,7 +177,7 @@ Split the repositories (adapters).
 
 ## Comment
 
-Avoid using the annotations `@return`, `@param`, `@var`. It is often useless. We can use it for array: `MyObject[]`.
+Avoid using the annotations `@return`, `@param`, `@var`. It is often useless. We can use it for an array: `MyObject[]`.
 
 Prefer this style:
 
@@ -181,7 +185,7 @@ Prefer this style:
 /**
  * Roll a $dice.
  *
- * The result of this action is a number of one of the faces.
+ * The result of this action is a number of ones of the faces.
  * You may add a $modifier to add to the result.
  */
 public function roll(Dice $dice, int $modifier = 0): int
@@ -198,11 +202,11 @@ Prefer a null safety approach.
 
 ## Continuous improvement
 
-Continuous improvement is very important. Don't be afraid to continually refactor/update/improve the code. It is vital. If we don't do this the application will degrade beyond repair.
+Continuous improvement is crucial. Don't be afraid to continually refactor/update/improve the code. It is vital. If we don't do this, the application will degrade beyond repair.
 
 ## Duplicate code
 
-Do not fear to duplicate code between context. Do not create common code between context. For example here we have the context Shop and the context Battle.
+Do not fear duplicating code between context. Do not create common code between context. For example, here we have the context Shop and the context Battle.
 
 ## Validations
 
@@ -229,7 +233,7 @@ Different types of tests are possible:
 
 - classic unit tests for each method
 - test on a use case (mock Port)
-- test only Infrastructure (mock Port, test persistence with a real db, test controllers with a http client, ...)
+- test only Infrastructure (mock Port, test persistence with a real db, test controllers with an http client, ...)
 - test all the application without mock
 
 Few tips:

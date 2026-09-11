@@ -11,19 +11,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 readonly class MonsterListRequest
 {
-    /**
-     * @Assert\Positive
-     */
-    public int|null $levelMin;
-
-    /**
-     * @Assert\Positive
-     */
-    public int|null $levelMax;
-
-    public function __construct(?int $levelMin, ?int $levelMax)
-    {
-        $this->levelMin = $levelMin;
-        $this->levelMax = $levelMax;
+    public function __construct(
+        #[Assert\Positive]
+        public ?int $levelMin = null,
+        #[Assert\Positive]
+        public ?int $levelMax = null,
+    ) {
     }
 }
