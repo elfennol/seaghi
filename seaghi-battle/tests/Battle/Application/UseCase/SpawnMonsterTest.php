@@ -11,6 +11,7 @@ use App\Battle\Application\UseCase\SpawnMonster;
 use App\Battle\Port\Out\PersistEntityPort;
 use App\Tests\Battle\Application\EntityIdSetterTrait;
 use Exception;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class SpawnMonsterTest extends TestCase
@@ -27,6 +28,7 @@ class SpawnMonsterTest extends TestCase
      *
      * @dataProvider spawnProvider
      */
+    #[DataProvider('spawnProvider')]
     public function testSpawn(int $expectedDefense, int $expectedHealth, Category $category, int $level): void
     {
         $this->persistEntity->method('persist')
@@ -70,7 +72,7 @@ class SpawnMonsterTest extends TestCase
     /**
      * [[expected defense, expected health, category, level], ...]
      */
-    public function spawnProvider(): array
+    public static function spawnProvider(): array
     {
         return [
             [5, 40, Category::WILD_SQUIRREL, 2],

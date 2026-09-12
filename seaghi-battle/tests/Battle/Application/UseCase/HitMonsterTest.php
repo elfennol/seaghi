@@ -16,6 +16,7 @@ use App\Battle\Port\Out\FindEntityPort;
 use App\Battle\Port\Out\PersistEntityPort;
 use App\Battle\Port\Out\PickRandomIntPort;
 use App\Tests\Battle\Application\EntityIdSetterTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class HitMonsterTest extends TestCase
@@ -38,6 +39,7 @@ class HitMonsterTest extends TestCase
      *
      * @dataProvider hitProviderBelowDefense
      */
+    #[DataProvider('hitProviderBelowDefense')]
     public function testHitBelowDefense(int $expectedHealth, int $providedRandomInt, int $defense): void
     {
         $this->pickRandomInt->method('pickRandomInt')->willReturn($providedRandomInt);
@@ -54,6 +56,7 @@ class HitMonsterTest extends TestCase
      *
      * @dataProvider hitProviderAboveDefense
      */
+    #[DataProvider('hitProviderAboveDefense')]
     public function testHitAboveDefense(int $expectedHealth, int $providedRandomInt, int $defense): void
     {
         $this->pickRandomInt->method('pickRandomInt')->willReturn($providedRandomInt);
@@ -97,7 +100,7 @@ class HitMonsterTest extends TestCase
     /**
      * [[expected health, provided random int, defense], ...]
      */
-    public function hitProviderBelowDefense(): array
+    public static function hitProviderBelowDefense(): array
     {
         return [
             [10, 2, 8],
@@ -108,7 +111,7 @@ class HitMonsterTest extends TestCase
     /**
      * [[expected health, provided random int, defense], ...]
      */
-    public function hitProviderAboveDefense(): array
+    public static function hitProviderAboveDefense(): array
     {
         return [
             [1, 9, 8],

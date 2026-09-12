@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/13.0/phpunit.xsd"
+         bootstrap="bootstrap.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache">
+    <testsuites>
+        <testsuite name="account">
+            <directory>../../../seaghi-account/tests</directory>
+        </testsuite>
+        <testsuite name="battle">
+            <directory>../../../seaghi-battle/tests</directory>
+        </testsuite>
+        <testsuite name="shop">
+            <directory>../../../seaghi-shop/tests</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory suffix=".php">../../../seaghi-account/src</directory>
+            <directory suffix=".php">../../../seaghi-battle/src</directory>
+            <directory suffix=".php">../../../seaghi-shop/src</directory>
+        </include>
+    </source>
+</phpunit>

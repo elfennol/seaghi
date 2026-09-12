@@ -43,7 +43,8 @@ class HttpApiSerializeSubscriberTest extends TestCase
             HttpKernelInterface::MAIN_REQUEST,
             ['foo' => 'bar']
         );
-        $this->serializer->method('serialize')
+        $this->serializer->expects($this->once())
+            ->method('serialize')
             ->with($event->getControllerResult(), 'json');
         $this->serializeSubscriber->onKernelController($event);
 

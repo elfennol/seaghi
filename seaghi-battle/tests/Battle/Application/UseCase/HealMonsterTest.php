@@ -13,6 +13,7 @@ use App\Battle\Port\Out\FindEntityPort;
 use App\Battle\Port\Out\PersistEntityPort;
 use App\Battle\Port\Out\PickRandomIntPort;
 use App\Tests\Battle\Application\EntityIdSetterTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class HealMonsterTest extends TestCase
@@ -34,6 +35,7 @@ class HealMonsterTest extends TestCase
      *
      * @dataProvider healProvider
      */
+    #[DataProvider('healProvider')]
     public function testHeal(int $expectedHealth, int $providedRandomInt): void
     {
         $this->pickRandomInt->method('pickRandomInt')->willReturn($providedRandomInt);
@@ -54,7 +56,7 @@ class HealMonsterTest extends TestCase
     /**
      * [[expected health, provided random int], ...]
      */
-    public function healProvider(): array
+    public static function healProvider(): array
     {
         return [
             [16, 2],

@@ -125,9 +125,9 @@ Some DTOs are shared between Application and Infrastructure. I consider an immut
 
 ## Entities are mutable
 
-TODO: uuidv7?
-
 An Entity has an identity and change during its lifetime. For example, a customer address may change, but it is still the same customer. The id, if not null, never changes. In the case of an ORM, do not define a setter for the id; it is managed by the ORM.
+
+Prefer UUIDv7 over autoincrement.
 
 ## Controller
 

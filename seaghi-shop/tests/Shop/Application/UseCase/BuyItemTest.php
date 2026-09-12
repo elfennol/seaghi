@@ -14,6 +14,7 @@ use App\Shop\Port\Out\PersistEntityPort;
 use App\Shop\Port\Out\SendMessagePort;
 use App\Shop\Port\Out\WithdrawFromAccountPort;
 use App\Tests\Shop\Application\EntityIdSetterTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class BuyItemTest extends TestCase
@@ -35,6 +36,7 @@ class BuyItemTest extends TestCase
      *
      * @dataProvider notReadyToFightProvider
      */
+    #[DataProvider('notReadyToFightProvider')]
     public function testNotReadyToFight(bool $isAvailable, bool $isSick, int $level): void
     {
         $monsterEntity = $this->buildMonster($isAvailable, $isSick, $level);
@@ -85,7 +87,7 @@ class BuyItemTest extends TestCase
     /**
      * [[available, sick, level], ...]
      */
-    public function notReadyToFightProvider(): array
+    public static function notReadyToFightProvider(): array
     {
         return [
             [false, false, 2],

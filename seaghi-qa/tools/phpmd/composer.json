@@ -1,0 +1,9 @@
+{
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=8.4"
+  },
+  "require-dev": {
+    "phpmd/phpmd": "3.x-dev"
+  }
+}

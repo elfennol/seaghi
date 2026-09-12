@@ -1,0 +1,28 @@
+deptrac:
+  paths:
+    - ../../../seaghi-account/src
+    - ../../../seaghi-battle/src
+    - ../../../seaghi-shop/src
+  exclude_files: ~
+  analyser:
+    types:
+      - class
+      - use
+      - function
+  layers:
+    - name: seaghi-account
+      collectors:
+        - type: directory
+          value: seaghi-account/.*
+    - name: seaghi-battle
+      collectors:
+        - type: directory
+          value: seaghi-battle/.*
+    - name: seaghi-shop
+      collectors:
+        - type: directory
+          value: seaghi-shop/.*
+  ruleset:
+    seaghi-account: []
+    seaghi-battle: []
+    seaghi-shop: []

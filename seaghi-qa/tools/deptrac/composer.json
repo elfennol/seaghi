@@ -1,0 +1,8 @@
+{
+  "require": {
+    "php": ">=8.4"
+  },
+  "require-dev": {
+    "deptrac/deptrac": "^4.4.0"
+  }
+}

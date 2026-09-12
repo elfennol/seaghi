@@ -1,1 +1,6 @@
 /.phpunit.result.cache
+.phpunit.cache/
+.phpunit.result.cache
+/seaghi-qa/tools/**/vendor/
+/seaghi-qa/tools/deptrac/.deptrac.cache
+/seaghi-qa/tools/phpcs/.php-cs-fixer.cache

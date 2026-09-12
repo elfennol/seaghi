@@ -1,0 +1,12 @@
+parameters:
+    level: 10
+    paths:
+        - ../../../seaghi-account
+        - ../../../seaghi-battle
+        - ../../../seaghi-shop
+    excludePaths:
+        - */var/*
+        - */vendor/*
+        - */config/reference.php
+    bootstrapFiles:
+        - ../phpunit/bootstrap.php

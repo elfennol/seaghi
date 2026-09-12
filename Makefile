@@ -41,55 +41,73 @@ battle-start:
 
 ## QA
 
-.PHONY: img-phpcs
-img-phpcs:
-	$(shell [ -z "$$(docker images -q phpcs)" ] && docker build -f seaghi-qa/dockerfiles/Dockerfile.phpcs -t phpcs .)
+.PHONY: deptrac
+deptrac:
+	./seaghi-qa/tools/deptrac/vendor/bin/deptrac analyse --config-file=seaghi-qa/tools/deptrac/deptrac.yaml
 
-.PHONY: %-phpcs
-%-phpcs: img-phpcs
-	docker run --rm -v $$(pwd)/seaghi-$*:/repo -u $$(id -u ${USER}):$$(id -g ${USER}) phpcs
+.PHONY: phpcs
+phpcs:
+	./seaghi-qa/tools/phpcs/vendor/bin/php-cs-fixer check --diff --config=seaghi-qa/tools/phpcs/.php-cs-fixer.php
 
-.PHONY: img-phpcbf
-img-phpcbf:
-	$(shell [ -z "$$(docker images -q phpcbf)" ] && docker build -f seaghi-qa/dockerfiles/Dockerfile.phpcbf -t phpcbf .)
+.PHONY: phpmd
+phpmd:
+	./seaghi-qa/tools/phpmd/vendor/bin/phpmd analyze seaghi-account seaghi-battle seaghi-shop --ruleset=seaghi-qa/tools/phpmd/phpmd.xml
 
-.PHONY: %-phpcbf
-%-phpcbf: img-phpcbf
-	docker run --rm -v $$(pwd)/seaghi-$*:/repo -u $$(id -u ${USER}):$$(id -g ${USER}) phpcbf
+.PHONY: phpstan
+phpstan:
+	./seaghi-qa/tools/phpstan/vendor/bin/phpstan analyse --configuration=seaghi-qa/tools/phpstan/phpstan.neon
 
-.PHONY: img-phpmd
-img-phpmd:
-	$(shell [ -z "$$(docker images -q phpmd)" ] && docker build -f seaghi-qa/dockerfiles/Dockerfile.phpmd -t phpmd .)
 
-.PHONY: %-phpmd
-%-phpmd: img-phpmd
-	docker run --rm -v $$(pwd)/seaghi-$*:/repo -u $$(id -u ${USER}):$$(id -g ${USER}) phpmd . text phpmd.xml
+.PHONY: phpunit
+phpunit:
+	./seaghi-qa/tools/phpunit/vendor/bin/phpunit --configuration seaghi-qa/tools/phpunit/phpunit.xml
 
-.PHONY: img-phpstan
-img-phpstan:
-	$(shell [ -z "$$(docker images -q phpstan)" ] && docker build -f seaghi-qa/dockerfiles/Dockerfile.phpstan -t phpstan .)
-
-.PHONY: %-phpstan
-%-phpstan: img-phpstan
-	docker run --rm -v $$(pwd)/seaghi-$*:/repo -u $$(id -u ${USER}):$$(id -g ${USER}) phpstan analyse -c phpstan.neon
-
-.PHONY: img-phpunit
-img-phpunit:
-	$(shell [ -z "$$(docker images -q phpunit)" ] && docker build -f seaghi-qa/dockerfiles/Dockerfile.phpunit -t phpunit .)
-
-.PHONY: %-phpunit
-%-phpunit: img-phpunit
-	docker run --rm -v $$(pwd)/seaghi-$*:/repo -u $$(id -u ${USER}):$$(id -g ${USER}) phpunit
-
-.PHONY: img-deptrac
-img-deptrac:
-	$(shell [ -z "$$(docker images -q deptrac)" ] && docker build -f seaghi-qa/dockerfiles/Dockerfile.deptrac -t deptrac .)
-
-.PHONY: %-deptrac
-%-deptrac: img-deptrac
-	docker run --rm -v $$(pwd)/seaghi-$*:/repo -u $$(id -u ${USER}):$$(id -g ${USER}) deptrac
+.PHONY: rector
+rector:
+	./seaghi-qa/tools/rector/vendor/bin/rector process --dry-run --config=seaghi-qa/tools/rector/rector.php
 
 .PHONY: %-orm-mapping-validation
 %-orm-mapping-validation:
 	cd seaghi-$* &&\
 	bin/console doctrine:schema:validate --skip-sync
+
+.PHONY: qa-vendor-update
+qa-vendor-update:
+	@echo "======== QA VENDOR UPDATE ========"
+	@echo "-------- Update phpcs --------"
+	composer update --working-dir=seaghi-qa/tools/phpcs
+	@echo "-------- Update phpmd --------"
+	composer update --working-dir=seaghi-qa/tools/phpmd
+	@echo "-------- Update phpstan --------"
+	composer update --working-dir=seaghi-qa/tools/phpstan
+	@echo "-------- Update phpunit --------"
+	composer update --working-dir=seaghi-qa/tools/phpunit
+	@echo "-------- Update rector --------"
+	composer update --working-dir=seaghi-qa/tools/rector
+	@echo "-------- Update deptrac --------"
+	composer update --working-dir=seaghi-qa/tools/deptrac
+
+.PHONY: qa-vendor-install
+qa-vendor-install:
+	@echo "======== QA VENDOR INSTALL ========"
+	@echo "-------- Install phpcs --------"
+	composer install --working-dir=seaghi-qa/tools/phpcs
+	@echo "-------- Install phpmd --------"
+	composer install --working-dir=seaghi-qa/tools/phpmd
+	@echo "-------- Install phpstan --------"
+	composer install --working-dir=seaghi-qa/tools/phpstan
+	@echo "-------- Install phpunit --------"
+	composer install --working-dir=seaghi-qa/tools/phpunit
+	@echo "-------- Install rector --------"
+	composer install --working-dir=seaghi-qa/tools/rector
+	@echo "-------- Install deptrac --------"
+	composer install --working-dir=seaghi-qa/tools/deptrac
+
+.PHONY: qa-vendor-remove
+qa-vendor-remove:
+	rm -fr seaghi-qa/tools/phpcs/vendor
+	rm -fr seaghi-qa/tools/phpmd/vendor
+	rm -fr seaghi-qa/tools/phpstan/vendor
+	rm -fr seaghi-qa/tools/phpunit/vendor
+	rm -fr seaghi-qa/tools/rector/vendor
+	rm -fr seaghi-qa/tools/deptrac/vendor
