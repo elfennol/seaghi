@@ -41,9 +41,9 @@ readonly class MonsterSoldMessageHandler
 
 
         $this->logger->debug('Monster created', [
-            'id' => $monster->getId(),
-            'max_health' => $monster->getMaxHealth(),
-            'defense' => $monster->getDefense(),
+            'id' => $monster->id,
+            'max_health' => $monster->maxHealth,
+            'defense' => $monster->defense,
         ]);
     }
 }

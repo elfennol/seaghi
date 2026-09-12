@@ -31,11 +31,11 @@ class ShowMonsterTest extends TestCase
 
         $monster = $this->showMonster->show(1);
 
-        $this::assertEquals(1, $monster->getId());
-        $this::assertEquals('my_first_name1 my_last_name1', $monster->getName());
-        $this::assertEquals(20, $monster->getMaxHealth());
-        $this::assertEquals(10, $monster->getCurrentHealth());
-        $this::assertEquals(11, $monster->getDefense());
+        $this::assertEquals(1, $monster->id);
+        $this::assertEquals('my_first_name1 my_last_name1', $monster->name);
+        $this::assertEquals(20, $monster->maxHealth);
+        $this::assertEquals(10, $monster->currentHealth);
+        $this::assertEquals(11, $monster->defense);
     }
 
     protected function setUp(): void

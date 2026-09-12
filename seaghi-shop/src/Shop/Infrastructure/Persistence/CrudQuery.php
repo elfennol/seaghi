@@ -15,7 +15,7 @@ use RuntimeException;
 class CrudQuery implements FindEntityPort, PersistEntityPort
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 

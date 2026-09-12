@@ -12,12 +12,7 @@ namespace App\Battle\Port\In\DataContract;
 readonly class ShowEffectDto
 {
     public function __construct(
-        private string $effectCode,
+        public string $effectCode,
     ) {
-    }
-
-    public function getEffectCode(): string
-    {
-        return $this->effectCode;
     }
 }

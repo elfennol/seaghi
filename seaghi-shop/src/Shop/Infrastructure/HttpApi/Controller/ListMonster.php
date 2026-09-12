@@ -7,15 +7,12 @@ namespace App\Shop\Infrastructure\HttpApi\Controller;
 use App\Shop\Infrastructure\HttpApi\Dto\MonsterListRequest;
 use App\Shop\Port\In\DataContract\SearchMonsterDto;
 use App\Shop\Port\In\ListItemPort;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 readonly class ListMonster
 {
     public function __construct(
-        private ValidatorInterface $validator,
         private ListItemPort $listMonster,
     ) {
     }
@@ -24,18 +21,8 @@ readonly class ListMonster
      * @return SearchMonsterDto[]
      */
     #[Route('/monster/list', methods: ['GET'])]
-    public function __invoke(Request $request): iterable
+    public function __invoke(#[MapQueryString] MonsterListRequest $monsterListRequest): iterable
     {
-        $monsterListRequest = new MonsterListRequest(
-            $request->query->has('level_min') ? $request->query->getInt('level_min') : null,
-            $request->query->has('level_max') ? $request->query->getInt('level_max') : null,
-        );
-        $errors = $this->validator->validate($monsterListRequest);
-
-        if (count($errors) > 0) {
-            throw new BadRequestHttpException((string)$errors);
-        }
-
         return $this->listMonster->list($monsterListRequest->levelMin, $monsterListRequest->levelMax);
     }
 }

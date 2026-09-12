@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Battle\Application\Component;
 
+use App\Battle\Application\Enum\HitForce;
+
 /**
  * Hit severity result.
  */
@@ -11,7 +13,7 @@ readonly class HitSeverity
 {
     public function __construct(
         private int $rollResult,
-        private string $hitForce,
+        private HitForce $hitForce,
     ) {
     }
 
@@ -20,7 +22,7 @@ readonly class HitSeverity
         return $this->rollResult;
     }
 
-    public function getHitForce(): string
+    public function getHitForce(): HitForce
     {
         return $this->hitForce;
     }

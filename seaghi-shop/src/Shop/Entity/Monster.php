@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * A monster.
  *
  * A monster is not a very nice creature.
- * It drools all over the place and it makes weird grunts.
+ * It drools all over the place, and it makes weird grunts.
  * You can have one if you want. A monster just for you!
  * This monster will be available on the battlefield.
  *
@@ -26,44 +26,44 @@ class Monster
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Category $category = null;
+    private Category $category;
 
     #[ORM\Column]
-    private ?int $level = null;
+    private int $level;
 
     #[ORM\Column]
-    private ?int $price = null;
+    private int $price;
 
     #[ORM\Column(length: 255)]
-    private ?string $firstName = null;
+    private string $firstName;
 
     #[ORM\Column(length: 255)]
-    private ?string $lastName = null;
+    private string $lastName;
 
     #[ORM\Column(options: ["default" => true])]
-    private ?bool $available = true;
+    private bool $available = true;
 
     #[ORM\Column(options: ["default" => false])]
-    private ?bool $sick = false;
+    private bool $sick = false;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getCategory(): ?Category
+    public function getCategory(): Category
     {
         return $this->category;
     }
 
-    public function setCategory(?Category $category): self
+    public function setCategory(Category $category): self
     {
         $this->category = $category;
 
         return $this;
     }
 
-    public function getLevel(): ?int
+    public function getLevel(): int
     {
         return $this->level;
     }
@@ -75,7 +75,7 @@ class Monster
         return $this;
     }
 
-    public function getPrice(): ?int
+    public function getPrice(): int
     {
         return $this->price;
     }
@@ -87,7 +87,7 @@ class Monster
         return $this;
     }
 
-    public function getFirstName(): ?string
+    public function getFirstName(): string
     {
         return $this->firstName;
     }
@@ -99,7 +99,7 @@ class Monster
         return $this;
     }
 
-    public function getLastName(): ?string
+    public function getLastName(): string
     {
         return $this->lastName;
     }
@@ -123,7 +123,7 @@ class Monster
         return $this;
     }
 
-    public function isSick(): ?bool
+    public function isSick(): bool
     {
         return $this->sick;
     }

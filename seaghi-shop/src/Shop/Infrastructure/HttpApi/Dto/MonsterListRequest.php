@@ -13,9 +13,11 @@ readonly class MonsterListRequest
 {
     public function __construct(
         #[Assert\Positive]
-        public ?int $levelMin = null,
+        #[Assert\NotNull]
+        public int $levelMin,
         #[Assert\Positive]
-        public ?int $levelMax = null,
+        #[Assert\NotNull]
+        public int $levelMax,
     ) {
     }
 }

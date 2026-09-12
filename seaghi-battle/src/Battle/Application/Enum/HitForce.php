@@ -7,8 +7,8 @@ namespace App\Battle\Application\Enum;
 /**
  * The types of the hit.
  */
-class HitForce
+enum HitForce
 {
-    public const NORMAL = 'normal';
-    public const CRITICAL = 'critical';
+    case NORMAL;
+    case CRITICAL;
 }

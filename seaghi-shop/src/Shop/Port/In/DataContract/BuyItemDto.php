@@ -9,12 +9,12 @@ namespace App\Shop\Port\In\DataContract;
  *
  * @see \App\Shop\Port\In\BuyItemPort
  */
-class BuyItemDto
+readonly class BuyItemDto
 {
     public function __construct(
-        public readonly int $id,
-        public readonly bool $canBuy,
-        public readonly string|null $msgCode,
+        public int $id,
+        public bool $canBuy,
+        public string|null $msgCode,
     ) {
     }
 }

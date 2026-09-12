@@ -18,12 +18,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * Hit a monster::
  *   - Roll a D20
- *   - if greater than the monster's defence then subtract the result from the monster's health
- *   - if 20 then the monster can not dodge and subtract twice the result from the monster's health
+ *   - If greater than the monster's defense, then subtract the result from the monster's health
+ *   - If 20, then the monster cannot dodge and subtract twice the result from the monster's health
  *
  * Effects:
- *   - critical injury: when the result is 20
- *   - badass: when the monster dodges the attack (damage = 0)
+ *   - Critical injury: when the result is 20
+ *   - Badass: when the monster dodges the attack (damage = 0)
  */
 readonly class HitMonster implements HitMonsterPort
 {
@@ -48,7 +48,7 @@ readonly class HitMonster implements HitMonsterPort
 
         $effectEntities = $this->findAllEffectIndexed->findAllIndexed();
         $effects = new ArrayCollection();
-        foreach ($damageSeverity->getEffects() as $damageEffect) {
+        foreach ($damageSeverity->effects as $damageEffect) {
             if (isset($effectEntities[$damageEffect])) {
                 $effects->add($effectEntities[$damageEffect]);
             }
@@ -60,8 +60,8 @@ readonly class HitMonster implements HitMonsterPort
         return new HitMonsterDto(
             $monster->getId(),
             $monster->getCurrentHealth(),
-            -$damageSeverity->getAmount(),
-            $damageSeverity->getEffects()
+            -$damageSeverity->amount,
+            $damageSeverity->effects
         );
     }
 }

@@ -13,8 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: "effect")]
 class Effect
 {
-    public const CODE_SERIOUS_INJURY = 'serious_injury';
-    public const CODE_BADASS = 'badass';
+    public const string CODE_SERIOUS_INJURY = 'serious_injury';
+    public const string CODE_BADASS = 'badass';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -22,14 +22,14 @@ class Effect
     private ?int $id = null;
 
     #[ORM\Column(length: 50, unique: true)]
-    private ?string $code = null;
+    private string $code;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getCode(): ?string
+    public function getCode(): string
     {
         return $this->code;
     }

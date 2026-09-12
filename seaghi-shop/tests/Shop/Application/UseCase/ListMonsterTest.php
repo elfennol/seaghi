@@ -7,103 +7,107 @@ namespace App\Tests\Shop\Application\UseCase;
 use App\Shop\Application\UseCase\ListItem;
 use App\Shop\Entity\Category;
 use App\Shop\Entity\Monster;
+use App\Shop\Port\In\DataContract\SearchMonsterDto;
 use App\Shop\Port\Out\SearchMonsterPort;
 use App\Tests\Shop\Application\EntityIdSetterTrait;
+use Exception;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Feature: List monster
- */
 class ListMonsterTest extends TestCase
 {
     use EntityIdSetterTrait;
 
-    private ListItem $listItem;
-
     private SearchMonsterPort $searchMonster;
-
-    /**
-     * Given some monsters in the shop
-     * When the player lists these monsters without a min level
-     * Then the minimum level filter is set to 1
-     */
-    public function testEmptyLevelMin(): void
-    {
-        $this->searchMonster->expects($this->once())
-            ->method('search')
-            ->willReturn($this->buildMonsters())
-            ->with(1);
-
-        $this->listItem->list(null, 4);
-    }
-
-    /**
-     * Given some monsters in the shop
-     * When the player lists these monsters without a max level
-     * Then the maximum level filter is set to 10
-     */
-    public function testEmptyLevelMax(): void
-    {
-        $this->searchMonster->expects($this->once())
-            ->method('search')
-            ->willReturn($this->buildMonsters())
-            ->with(1, 10);
-
-        $this->listItem->list(1, 10);
-    }
-
-    /**
-     * Given some monsters in the shop
-     * When the player lists these monsters with a max level filter greater than 10
-     * Then the maximum level filter is set to 10
-     */
-    public function testLevelMaxTooHigh(): void
-    {
-        $this->searchMonster->expects($this->once())
-            ->method('search')
-            ->willReturn($this->buildMonsters())
-            ->with(1, 10);
-
-        $this->listItem->list(1, 11);
-    }
+    private ListItem $listItem;
 
     protected function setUp(): void
     {
-        $this->searchMonster = $this->createMock(SearchMonsterPort::class);
-
+        $this->searchMonster = $this->createStub(SearchMonsterPort::class);
         $this->listItem = new ListItem($this->searchMonster);
     }
 
     /**
-     * @return Monster[]
+     * Given monsters found in the shop
+     * When the player lists monsters within valid level range
+     * Then it returns the mapped SearchMonsterDto collection
      */
-    private function buildMonsters(): array
+    public function testList(): void
     {
-        $monsterEntityChicken = new Monster();
-        $monsterEntityChicken->setLevel(2);
-        $monsterEntityChicken->setPrice(10);
-        $monsterEntityChicken->setFirstName('first_name_chicken');
-        $monsterEntityChicken->setLastName('last_name_chicken');
-        $monsterEntityChicken->setAvailable(true);
-        $monsterEntityChicken->setSick(false);
+        $monster = $this->buildMonster(1, 'lol_cat', 3, 150, 'Felix', 'The Cat', true, false);
+
+        $mockSearch = $this->createMock(SearchMonsterPort::class);
+        $mockSearch->expects($this->once())
+            ->method('search')
+            ->with(1, 10)
+            ->willReturn([$monster]);
+
+        $listItem = new ListItem($mockSearch);
+        $result = $listItem->list(1, 10);
+
+        $this::assertIsArray($result);
+        $this::assertCount(1, $result);
+        $this::assertInstanceOf(SearchMonsterDto::class, $result[0]);
+        $this::assertSame(1, $result[0]->id);
+        $this::assertSame('lol_cat', $result[0]->categoryCode);
+        $this::assertSame(3, $result[0]->level);
+        $this::assertSame(150, $result[0]->price);
+        $this::assertSame('Felix', $result[0]->firstName);
+        $this::assertSame('The Cat', $result[0]->lastName);
+        $this::assertTrue($result[0]->available);
+        $this::assertFalse($result[0]->sick);
+    }
+
+    /**
+     * Given an invalid level range outside 1-10
+     * When the player lists monsters
+     * Then an exception is thrown
+     */
+    #[DataProvider('invalidLevelProvider')]
+    public function testInvalidLevels(int $levelMin, int $levelMax): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Allowed levels are between 1 and 10.');
+
+        $this->listItem->list($levelMin, $levelMax);
+    }
+
+    /**
+     * @return array<string, array{int, int}>
+     */
+    public static function invalidLevelProvider(): array
+    {
+        return [
+            'min below 1' => [0, 5],
+            'min above 10' => [11, 5],
+            'max below 1' => [1, 0],
+            'max above 10' => [1, 11],
+        ];
+    }
+
+    private function buildMonster(
+        int $monsterId,
+        string $categoryCode,
+        int $level,
+        int $price,
+        string $firstName,
+        string $lastName,
+        bool $available,
+        bool $sick,
+    ): Monster {
         $category = new Category();
-        $category->setCode(Category::CODE_SHAPESHIFTER_CHICKEN);
-        $monsterEntityChicken->setCategory($category);
-        $this->setEntityId($monsterEntityChicken, 1);
+        $category->setCode($categoryCode);
 
-        $monsterEntityLolCat = new Monster();
-        $monsterEntityLolCat->setLevel(3);
-        $monsterEntityLolCat->setPrice(11);
-        $monsterEntityLolCat->setFirstName('first_name_cat');
-        $monsterEntityLolCat->setLastName('last_name_cat');
-        $monsterEntityLolCat->setAvailable(true);
-        $monsterEntityLolCat->setSick(false);
-        $category = new Category();
-        $category->setCode(Category::CODE_LOLCAT);
-        $monsterEntityLolCat->setCategory($category);
-        $this->setEntityId($monsterEntityLolCat, 2);
+        $monster = new Monster();
+        $monster->setCategory($category);
+        $monster->setLevel($level);
+        $monster->setPrice($price);
+        $monster->setFirstName($firstName);
+        $monster->setLastName($lastName);
+        $monster->setAvailable($available);
+        $monster->setSick($sick);
+        $this->setEntityId($monster, $monsterId);
 
-
-        return [$monsterEntityChicken, $monsterEntityLolCat];
+        return $monster;
     }
 }

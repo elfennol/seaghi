@@ -17,15 +17,22 @@ use InvalidArgumentException;
  */
 readonly class Dice
 {
-    /**
-     * @param int $numberOfFaces The number of faces on the dice
-     */
-    public function __construct(
+    private function __construct(
         private int $numberOfFaces,
     ) {
-        if ($this->numberOfFaces < 2) {
+
+    }
+
+    /**
+     * @throws InvalidArgumentException The number of faces must be strictly greater than 1
+     */
+    public static function create(int $numberOfFaces): self
+    {
+        if ($numberOfFaces < 2) {
             throw new InvalidArgumentException('The number of faces must be strictly greater than 1.');
         }
+
+        return new self($numberOfFaces);
     }
 
     public function getNumberOfFaces(): int

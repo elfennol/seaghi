@@ -12,18 +12,8 @@ namespace App\Battle\Port\In\DataContract;
 readonly class ListMonsterDto
 {
     public function __construct(
-        private int $id,
-        private string $name,
+        public int $id,
+        public string $name,
     ) {
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
     }
 }

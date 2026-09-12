@@ -11,8 +11,8 @@ trait EntityIdSetterTrait
      */
     private function setEntityId(object $entity, int $id)
     {
-        (function () use ($id) {
+        (function () use ($id): void {
             $this->id = $id;
-        })->bindTo($entity, get_class($entity))();
+        })->bindTo($entity, $entity::class)();
     }
 }

@@ -9,7 +9,7 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 
 /**
  * The type header is set only to the class base name (without the namespace).
- * In order to communicate with other contexts.
+ * To communicate with other contexts.
  */
 readonly class MessageSerializer implements SerializerInterface
 {

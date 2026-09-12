@@ -12,24 +12,9 @@ namespace App\Battle\Port\In\DataContract;
 readonly class HealMonsterDto
 {
     public function __construct(
-        private int $id,
-        private int $currentHealth,
-        private int $healthDiff,
+        public int $id,
+        public int $currentHealth,
+        public int $healthDiff,
     ) {
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getCurrentHealth(): int
-    {
-        return $this->currentHealth;
-    }
-
-    public function getHealthDiff(): int
-    {
-        return $this->healthDiff;
     }
 }

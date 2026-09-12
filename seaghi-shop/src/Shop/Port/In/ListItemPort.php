@@ -14,5 +14,5 @@ interface ListItemPort
     /**
      * @return SearchMonsterDto[]
      */
-    public function list(int|null $levelMin, int|null $levelMax): iterable;
+    public function list(int $levelMin, int $levelMax): iterable;
 }

@@ -11,7 +11,7 @@ use App\Battle\Application\Enum\HitForce;
 /**
  * Hit severity strategy for a monster.
  */
-class ComputeHitSeverity
+readonly class ComputeHitSeverity
 {
     public function __construct(
         private RollDice $rollDice,
@@ -23,7 +23,7 @@ class ComputeHitSeverity
      */
     public function compute(): HitSeverity
     {
-        $rollResult = $this->rollDice->roll(new Dice(20));
+        $rollResult = $this->rollDice->roll(Dice::create(20));
 
         $injuryType = HitForce::NORMAL;
         if (20 === $rollResult) {

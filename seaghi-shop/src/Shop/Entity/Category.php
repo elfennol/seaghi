@@ -28,14 +28,14 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 50, unique: true)]
-    private ?string $code = null;
+    private string $code;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getCode(): ?string
+    public function getCode(): string
     {
         return $this->code;
     }

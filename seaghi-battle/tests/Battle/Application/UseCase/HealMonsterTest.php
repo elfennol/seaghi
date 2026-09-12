@@ -50,7 +50,7 @@ class HealMonsterTest extends TestCase
         $this->findEntity->method('find')
             ->willReturn($monster);
 
-        $this::assertEquals($expectedHealth, $this->healMonster->heal(1)->getCurrentHealth());
+        $this::assertEquals($expectedHealth, $this->healMonster->heal(1)->currentHealth);
     }
 
     /**

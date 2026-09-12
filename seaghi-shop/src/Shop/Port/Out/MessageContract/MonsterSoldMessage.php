@@ -7,13 +7,13 @@ namespace App\Shop\Port\Out\MessageContract;
 /**
  * Message when a monster is sold.
  */
-class MonsterSoldMessage implements MessageMc
+readonly class MonsterSoldMessage implements MessageMc
 {
     public function __construct(
-        public readonly string $firstName,
-        public readonly string $lastName,
-        public readonly string $categoryCode,
-        public readonly int $level,
+        public string $firstName,
+        public string $lastName,
+        public string $categoryCode,
+        public int $level,
     ) {
     }
 }

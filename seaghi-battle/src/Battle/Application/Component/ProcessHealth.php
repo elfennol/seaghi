@@ -14,9 +14,9 @@ class ProcessHealth
     public function injure(Monster $monster, DamageSeverity $damageSeverity): void
     {
         $monster->setCurrentHealth(
-            $monster->getCurrentHealth() - $damageSeverity->getAmount() < 0
+            $monster->getCurrentHealth() - $damageSeverity->amount < 0
                 ? 0
-                : $monster->getCurrentHealth() - $damageSeverity->getAmount()
+                : $monster->getCurrentHealth() - $damageSeverity->amount
         );
     }
 

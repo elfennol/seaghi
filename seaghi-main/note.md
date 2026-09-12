@@ -123,6 +123,11 @@ TODO: MessageContract?
 
 Some DTOs are shared between Application and Infrastructure. I consider an immutable data holder as a "data contract": we have access to these data, this data holder was created with valid data, and this data has not been modified since the creation of this data holder (When we sign a contract, the contract is meant to be valid and should not be changed). So I put these DTOs in Port. Folder "DataContract" for general DTO and folder "MessageContract" for the message data holders.
 
+## Value Object
+
+- Throwing an exception (or using a type like `Result<ValueObject, ValidationError>`) during validation while creating a value object is considered a standard good practice: value objects must represent valid domain concepts at all times.
+- Prefer using static factory methods with private constructors: clearer intent, multiple constructors, and a single entry point.
+
 ## Entities are mutable
 
 An Entity has an identity and change during its lifetime. For example, a customer address may change, but it is still the same customer. The id, if not null, never changes. In the case of an ORM, do not define a setter for the id; it is managed by the ORM.

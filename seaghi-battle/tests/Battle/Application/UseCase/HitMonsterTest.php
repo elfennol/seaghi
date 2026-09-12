@@ -46,7 +46,7 @@ class HitMonsterTest extends TestCase
         $this->findEntity->method('find')
             ->willReturn($this->buildMonster($defense));
 
-        $this::assertEquals($expectedHealth, $this->hitMonster->hit(1)->getCurrentHealth());
+        $this::assertEquals($expectedHealth, $this->hitMonster->hit(1)->currentHealth);
     }
 
     /**
@@ -63,7 +63,7 @@ class HitMonsterTest extends TestCase
         $this->findEntity->method('find')
             ->willReturn($this->buildMonster($defense));
 
-        $this::assertEquals($expectedHealth, $this->hitMonster->hit(1)->getCurrentHealth());
+        $this::assertEquals($expectedHealth, $this->hitMonster->hit(1)->currentHealth);
     }
 
     /**
@@ -78,8 +78,8 @@ class HitMonsterTest extends TestCase
             ->willReturn($this->buildMonster(10, 100, 50));
 
         $hitResult = $this->hitMonster->hit(1);
-        $this::assertEquals(10, $hitResult->getCurrentHealth());
-        $this::assertContains(Effect::CODE_SERIOUS_INJURY, $hitResult->getEffects());
+        $this::assertEquals(10, $hitResult->currentHealth);
+        $this::assertContains(Effect::CODE_SERIOUS_INJURY, $hitResult->effects);
     }
 
     /**
@@ -94,7 +94,7 @@ class HitMonsterTest extends TestCase
             ->willReturn($this->buildMonster(10));
 
         $hitResult = $this->hitMonster->hit(1);
-        $this::assertContains(Effect::CODE_BADASS, $hitResult->getEffects());
+        $this::assertContains(Effect::CODE_BADASS, $hitResult->effects);
     }
 
     /**

@@ -19,6 +19,14 @@ class ListMonsterTest extends TestCase
     private FindAllEntityPort $findAll;
     private FormatName $formatName;
 
+    protected function setUp(): void
+    {
+        $this->findAll = $this->createMock(FindAllEntityPort::class);
+        $this->formatName = new FormatName();
+
+        $this->listMonster = new ListMonster($this->findAll, $this->formatName);
+    }
+
     /**
      * When the player lists the monsters
      * Then the list result contains the ids and the full names of the monsters
@@ -32,18 +40,10 @@ class ListMonsterTest extends TestCase
 
         $monsters = $this->listMonster->list();
 
-        $this::assertEquals(1, $monsters[0]->getId());
-        $this::assertEquals('my_first_name1 my_last_name1', $monsters[0]->getName());
-        $this::assertEquals(2, $monsters[1]->getId());
-        $this::assertEquals('my_first_name2 my_last_name2', $monsters[1]->getName());
-    }
-
-    protected function setUp(): void
-    {
-        $this->findAll = $this->createMock(FindAllEntityPort::class);
-        $this->formatName = new FormatName();
-
-        $this->listMonster = new ListMonster($this->findAll, $this->formatName);
+        $this::assertEquals(1, $monsters[0]->id);
+        $this::assertEquals('my_first_name1 my_last_name1', $monsters[0]->name);
+        $this::assertEquals(2, $monsters[1]->id);
+        $this::assertEquals('my_first_name2 my_last_name2', $monsters[1]->name);
     }
 
     private function buildMonster(int $id, string $firstName, string $lastName): Monster

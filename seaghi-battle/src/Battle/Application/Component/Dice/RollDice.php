@@ -19,7 +19,7 @@ readonly class RollDice
     /**
      * Roll a $dice.
      *
-     * The result of this action is a number of one of the faces.
+     * The result of this action is a number of ones of the faces.
      * You may add a $modifier to add to the result.
      */
     public function roll(Dice $dice, int $modifier = 0): int

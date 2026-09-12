@@ -27,19 +27,19 @@ class Monster
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $firstName = null;
+    private string $firstName;
 
     #[ORM\Column(length: 255)]
-    private ?string $lastName = null;
+    private string $lastName;
 
     #[ORM\Column(options: ["default" => 0])]
-    private ?int $currentHealth = 0;
+    private int $currentHealth;
 
     #[ORM\Column(options: ["default" => 0])]
-    private ?int $maxHealth = 0;
+    private int $maxHealth;
 
     #[ORM\Column(options: ["default" => 0])]
-    private ?int $defense = 0;
+    private int $defense;
 
     /**
      * @var Collection<int, Effect>
@@ -57,7 +57,7 @@ class Monster
         return $this->id;
     }
 
-    public function getFirstName(): ?string
+    public function getFirstName(): string
     {
         return $this->firstName;
     }
@@ -69,7 +69,7 @@ class Monster
         return $this;
     }
 
-    public function getLastName(): ?string
+    public function getLastName(): string
     {
         return $this->lastName;
     }
@@ -81,7 +81,7 @@ class Monster
         return $this;
     }
 
-    public function getCurrentHealth(): ?int
+    public function getCurrentHealth(): int
     {
         return $this->currentHealth;
     }
@@ -93,7 +93,7 @@ class Monster
         return $this;
     }
 
-    public function getMaxHealth(): ?int
+    public function getMaxHealth(): int
     {
         return $this->maxHealth;
     }
@@ -105,7 +105,7 @@ class Monster
         return $this;
     }
 
-    public function getDefense(): ?int
+    public function getDefense(): int
     {
         return $this->defense;
     }

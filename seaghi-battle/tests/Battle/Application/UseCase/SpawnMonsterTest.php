@@ -32,7 +32,7 @@ class SpawnMonsterTest extends TestCase
     public function testSpawn(int $expectedDefense, int $expectedHealth, Category $category, int $level): void
     {
         $this->persistEntity->method('persist')
-            ->willReturnCallback(function (Monster $monster) {
+            ->willReturnCallback(function (Monster $monster): void {
                 $this->setEntityId($monster, 1);
             });
 
@@ -43,8 +43,8 @@ class SpawnMonsterTest extends TestCase
             $level,
         );
 
-        $this::assertEquals($expectedDefense, $spawnMonster->getDefense());
-        $this::assertEquals($expectedHealth, $spawnMonster->getMaxHealth());
+        $this::assertEquals($expectedDefense, $spawnMonster->defense);
+        $this::assertEquals($expectedHealth, $spawnMonster->maxHealth);
     }
 
     /**
@@ -57,7 +57,7 @@ class SpawnMonsterTest extends TestCase
         $this->expectException(Exception::class);
 
         $this->persistEntity->method('persist')
-            ->willReturnCallback(function (Monster $monster) {
+            ->willReturnCallback(function (Monster $monster): void {
                 $this->setEntityId($monster, 1);
             });
 

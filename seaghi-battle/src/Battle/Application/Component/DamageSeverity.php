@@ -13,21 +13,8 @@ readonly class DamageSeverity
      * @param array<string> $effects
      */
     public function __construct(
-        private int $amount,
-        private array $effects,
+        public int $amount,
+        public array $effects,
     ) {
-    }
-
-    public function getAmount(): int
-    {
-        return $this->amount;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getEffects(): array
-    {
-        return $this->effects;
     }
 }

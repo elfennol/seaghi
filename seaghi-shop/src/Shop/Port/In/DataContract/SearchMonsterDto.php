@@ -9,17 +9,17 @@ namespace App\Shop\Port\In\DataContract;
  *
  * @see \App\Shop\Port\In\ListItemPort
  */
-class SearchMonsterDto
+readonly class SearchMonsterDto
 {
     public function __construct(
-        public readonly int $id,
-        public readonly string $categoryCode,
-        public readonly int $level,
-        public readonly int $price,
-        public readonly string $firstName,
-        public readonly string $lastName,
-        public readonly bool $available,
-        public readonly bool $sick,
+        public int $id,
+        public string $categoryCode,
+        public int $level,
+        public int $price,
+        public string $firstName,
+        public string $lastName,
+        public bool $available,
+        public bool $sick,
     ) {
     }
 }

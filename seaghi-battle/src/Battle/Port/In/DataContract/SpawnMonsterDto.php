@@ -12,33 +12,9 @@ namespace App\Battle\Port\In\DataContract;
 readonly class SpawnMonsterDto
 {
     public function __construct(
-        private int $id,
-        private int $maxHealth,
-        private int $defense,
+        public int $id,
+        public int $maxHealth,
+        public int $defense,
     ) {
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return int
-     */
-    public function getMaxHealth(): int
-    {
-        return $this->maxHealth;
-    }
-
-    /**
-     * @return int
-     */
-    public function getDefense(): int
-    {
-        return $this->defense;
     }
 }

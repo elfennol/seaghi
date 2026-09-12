@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class SendMessage implements SendMessagePort
 {
     public function __construct(
-        private MessageBusInterface $messageBus
+        private readonly MessageBusInterface $messageBus
     ) {
     }
 

@@ -19,6 +19,6 @@ readonly class ComputeHealing
 
     public function compute(): int
     {
-        return $this->rollDice->roll(new Dice(8), 4);
+        return $this->rollDice->roll(Dice::create(8), 4);
     }
 }
