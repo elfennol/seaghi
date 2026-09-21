@@ -121,11 +121,11 @@ class HitMonsterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->pickRandomInt = $this->createMock(PickRandomIntPort::class);
+        $this->pickRandomInt = $this->createStub(PickRandomIntPort::class);
 
-        $this->findEntity = $this->createMock(FindEntityPort::class);
-        $this->findAllEffectIndexed = $this->createMock(FindAllEffectIndexedPort::class);
-        $this->persistEntity = $this->createMock(PersistEntityPort::class);
+        $this->findEntity = $this->createStub(FindEntityPort::class);
+        $this->findAllEffectIndexed = $this->createStub(FindAllEffectIndexedPort::class);
+        $this->persistEntity = $this->createStub(PersistEntityPort::class);
         $this->computeHitSeverity = new ComputeHitSeverity(new RollDice($this->pickRandomInt));
         $this->computeDmgSeverity = new ComputeDamageSeverity();
         $this->processHealth = new ProcessHealth();

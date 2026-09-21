@@ -54,9 +54,9 @@ class MonsterSoldMessageHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->validator = $this->createMock(MessageValidatorInterface::class);
+        $this->validator = $this->createStub(MessageValidatorInterface::class);
         $this->spawnMonster = $this->createMock(SpawnMonsterPort::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = $this->createStub(LoggerInterface::class);
 
         $this->messageHandler = new MonsterSoldMessageHandler(
             $this->validator,

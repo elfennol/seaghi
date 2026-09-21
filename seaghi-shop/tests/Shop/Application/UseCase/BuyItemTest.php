@@ -42,6 +42,7 @@ class BuyItemTest extends TestCase
         $monsterEntity = $this->buildMonster($isAvailable, $isSick, $level);
         $this->findEntity->method('find')->willReturn($monsterEntity);
         $this->withdrawFromAccount->method('withDraw')->willReturn(true);
+        $this->sendMessage->expects($this->never())->method('send');
 
         $buyItemDto = $this->buyItem->buy(1);
 
@@ -58,6 +59,7 @@ class BuyItemTest extends TestCase
         $monsterEntity = $this->buildMonster(true, false, 2);
         $this->findEntity->method('find')->willReturn($monsterEntity);
         $this->withdrawFromAccount->method('withDraw')->willReturn(false);
+        $this->sendMessage->expects($this->never())->method('send');
 
         $buyDto = $this->buyItem->buy(1);
 
@@ -98,9 +100,9 @@ class BuyItemTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->findEntity = $this->createMock(FindEntityPort::class);
-        $this->persistEntity = $this->createMock(PersistEntityPort::class);
-        $this->withdrawFromAccount = $this->createMock(WithdrawFromAccountPort::class);
+        $this->findEntity = $this->createStub(FindEntityPort::class);
+        $this->persistEntity = $this->createStub(PersistEntityPort::class);
+        $this->withdrawFromAccount = $this->createStub(WithdrawFromAccountPort::class);
         $this->sendMessage = $this->createMock(SendMessagePort::class);
         $this->checkMonsterStatus = new CheckMonsterStatus();
 

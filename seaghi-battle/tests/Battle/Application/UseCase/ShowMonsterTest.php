@@ -40,7 +40,7 @@ class ShowMonsterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->findEntity = $this->createMock(FindEntityPort::class);
+        $this->findEntity = $this->createStub(FindEntityPort::class);
         $this->formatName = new FormatName();
 
         $this->showMonster = new ShowMonster($this->findEntity, $this->formatName);

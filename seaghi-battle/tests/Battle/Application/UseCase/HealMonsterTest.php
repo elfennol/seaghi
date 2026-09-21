@@ -66,10 +66,10 @@ class HealMonsterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->pickRandomInt = $this->createMock(PickRandomIntPort::class);
+        $this->pickRandomInt = $this->createStub(PickRandomIntPort::class);
 
-        $this->findEntity = $this->createMock(FindEntityPort::class);
-        $this->persistEntity = $this->createMock(PersistEntityPort::class);
+        $this->findEntity = $this->createStub(FindEntityPort::class);
+        $this->persistEntity = $this->createStub(PersistEntityPort::class);
         $this->computeHeal = new ComputeHealing(new RollDice($this->pickRandomInt));
         $this->processHealth = new ProcessHealth();
 

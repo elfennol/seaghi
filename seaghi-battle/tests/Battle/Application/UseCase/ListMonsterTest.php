@@ -21,7 +21,7 @@ class ListMonsterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->findAll = $this->createMock(FindAllEntityPort::class);
+        $this->findAll = $this->createStub(FindAllEntityPort::class);
         $this->formatName = new FormatName();
 
         $this->listMonster = new ListMonster($this->findAll, $this->formatName);

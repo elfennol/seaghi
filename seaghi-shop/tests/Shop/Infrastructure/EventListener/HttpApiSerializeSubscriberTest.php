@@ -15,9 +15,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class HttpApiSerializeSubscriberTest extends TestCase
 {
-    private HttpApiSerializeSubscriber $serializeSubscriber;
-    private SerializerInterface $serializer;
-
     /**
      * When the system get the list of subscribed events
      * Then the subscriber return [KernelEvents::VIEW => 'onKernelController']
@@ -26,7 +23,7 @@ class HttpApiSerializeSubscriberTest extends TestCase
     {
         $this::assertEquals(
             [KernelEvents::VIEW => 'onKernelController'],
-            $this->serializeSubscriber::getSubscribedEvents()
+            HttpApiSerializeSubscriber::getSubscribedEvents()
         );
     }
 
@@ -37,23 +34,20 @@ class HttpApiSerializeSubscriberTest extends TestCase
      */
     public function testOnKernelController(): void
     {
+        $serializer = $this->createMock(SerializerInterface::class);
+        $serializeSubscriber = new HttpApiSerializeSubscriber($serializer);
+
         $event = new ViewEvent(
-            $this->createMock(HttpKernelInterface::class),
-            $this->createMock(Request::class),
+            $this->createStub(HttpKernelInterface::class),
+            $this->createStub(Request::class),
             HttpKernelInterface::MAIN_REQUEST,
             ['foo' => 'bar']
         );
-        $this->serializer->expects($this->once())
+        $serializer->expects($this->once())
             ->method('serialize')
             ->with($event->getControllerResult(), 'json');
-        $this->serializeSubscriber->onKernelController($event);
+        $serializeSubscriber->onKernelController($event);
 
         $this::assertInstanceOf(JsonResponse::class, $event->getResponse());
-    }
-
-    protected function setUp(): void
-    {
-        $this->serializer = $this->createMock(SerializerInterface::class);
-        $this->serializeSubscriber = new HttpApiSerializeSubscriber($this->serializer);
     }
 }

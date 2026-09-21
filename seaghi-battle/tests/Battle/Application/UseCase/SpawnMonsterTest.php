@@ -84,7 +84,7 @@ class SpawnMonsterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->persistEntity = $this->createMock(PersistEntityPort::class);
+        $this->persistEntity = $this->createStub(PersistEntityPort::class);
         $this->difficultyStrategy = new DifficultyNormalStrategy();
 
         $this->spawnMonster = new SpawnMonster(

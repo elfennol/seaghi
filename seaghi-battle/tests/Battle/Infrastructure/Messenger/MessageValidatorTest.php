@@ -49,7 +49,7 @@ class MessageValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->validator = $this->createMock(ValidatorInterface::class);
+        $this->validator = $this->createStub(ValidatorInterface::class);
         $this->msgValidator = new MessageValidator($this->validator);
     }
 }
