@@ -10,19 +10,84 @@ deptrac:
       - use
       - function
   layers:
-    - name: seaghi-account
+    # Vendor layer: any class that is not our own App\ namespace
+    - name: vendor
+      collectors:
+        - type: classLike
+          value: ^(?!App\\).+
+
+    - name: seaghi_account
       collectors:
         - type: directory
           value: seaghi-account/.*
-    - name: seaghi-battle
+
+    # Battle layers
+    - name: seaghi_battle_application
       collectors:
         - type: directory
-          value: seaghi-battle/.*
-    - name: seaghi-shop
+          value: seaghi-battle/src/Battle/Application/.*
+    - name: seaghi_battle_infrastructure
       collectors:
         - type: directory
-          value: seaghi-shop/.*
+          value: seaghi-battle/src/Battle/Infrastructure/.*
+    - name: seaghi_battle_port
+      collectors:
+        - type: directory
+          value: seaghi-battle/src/Battle/Port/.*
+    - name: seaghi_battle_entity
+      collectors:
+        - type: directory
+          value: seaghi-battle/src/Battle/Entity/.*
+
+    # Shop layers
+    - name: seaghi_shop_application
+      collectors:
+        - type: directory
+          value: seaghi-shop/src/Shop/Application/.*
+    - name: seaghi_shop_infrastructure
+      collectors:
+        - type: directory
+          value: seaghi-shop/src/Shop/Infrastructure/.*
+    - name: seaghi_shop_port
+      collectors:
+        - type: directory
+          value: seaghi-shop/src/Shop/Port/.*
+    - name: seaghi_shop_entity
+      collectors:
+        - type: directory
+          value: seaghi-shop/src/Shop/Entity/.*
+
   ruleset:
-    seaghi-account: []
-    seaghi-battle: []
-    seaghi-shop: []
+    vendor: []
+    seaghi_account:
+      - vendor
+
+    # Battle ruleset
+    seaghi_battle_application:
+      - seaghi_battle_port
+      - seaghi_battle_entity
+      - vendor
+    seaghi_battle_infrastructure:
+      - seaghi_battle_port
+      - seaghi_battle_entity
+      - vendor
+    seaghi_battle_port:
+      - seaghi_battle_entity
+      - vendor
+    seaghi_battle_entity:
+      - vendor
+
+    # Shop ruleset
+    seaghi_shop_application:
+      - seaghi_shop_port
+      - seaghi_shop_entity
+      - vendor
+    seaghi_shop_infrastructure:
+      - seaghi_shop_port
+      - seaghi_shop_entity
+      - vendor
+    seaghi_shop_port:
+      - seaghi_shop_entity
+      - vendor
+    seaghi_shop_entity:
+      - vendor
