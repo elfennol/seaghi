@@ -47,7 +47,7 @@ deptrac:
 
 .PHONY: phpcs
 phpcs:
-	./seaghi-qa/tools/phpcs/vendor/bin/php-cs-fixer check --diff --config=seaghi-qa/tools/phpcs/.php-cs-fixer.php
+	cd seaghi-qa/tools/phpcs/ && ./vendor/bin/php-cs-fixer check --diff
 
 .PHONY: phpmd
 phpmd:
