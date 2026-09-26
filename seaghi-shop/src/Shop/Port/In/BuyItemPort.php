@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shop\Port\In;
 
 use App\Shop\Port\In\DataContract\BuyItemDto;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Buy the monster of your dreams!
@@ -13,5 +14,5 @@ use App\Shop\Port\In\DataContract\BuyItemDto;
  */
 interface BuyItemPort
 {
-    public function buy(int $monsterId): BuyItemDto;
+    public function buy(Uuid $monsterId): BuyItemDto;
 }

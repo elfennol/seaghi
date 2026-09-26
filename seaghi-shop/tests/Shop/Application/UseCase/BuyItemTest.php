@@ -16,6 +16,7 @@ use App\Shop\Port\Out\WithdrawFromAccountPort;
 use App\Tests\Shop\Application\EntityIdSetterTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 class BuyItemTest extends TestCase
 {
@@ -44,7 +45,7 @@ class BuyItemTest extends TestCase
         $this->withdrawFromAccount->method('withDraw')->willReturn(true);
         $this->sendMessage->expects($this->never())->method('send');
 
-        $buyItemDto = $this->buyItem->buy(1);
+        $buyItemDto = $this->buyItem->buy(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         $this::assertFalse($buyItemDto->canBuy);
     }
@@ -61,7 +62,7 @@ class BuyItemTest extends TestCase
         $this->withdrawFromAccount->method('withDraw')->willReturn(false);
         $this->sendMessage->expects($this->never())->method('send');
 
-        $buyDto = $this->buyItem->buy(1);
+        $buyDto = $this->buyItem->buy(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         $this::assertFalse($buyDto->canBuy);
     }
@@ -80,7 +81,7 @@ class BuyItemTest extends TestCase
             ->method('send')
             ->with($this->isInstanceOf(MonsterSoldMessage::class));
 
-        $buyDto = $this->buyItem->buy(1);
+        $buyDto = $this->buyItem->buy(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         $this::assertFalse($monsterEntity->isAvailable());
         $this::assertTrue($buyDto->canBuy);
@@ -127,7 +128,7 @@ class BuyItemTest extends TestCase
         $category = new Category();
         $category->setCode(Category::CODE_SHAPESHIFTER_CHICKEN);
         $monsterEntity->setCategory($category);
-        $this->setEntityId($monsterEntity, 1);
+        $this->setEntityId($monsterEntity, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         return $monsterEntity;
     }

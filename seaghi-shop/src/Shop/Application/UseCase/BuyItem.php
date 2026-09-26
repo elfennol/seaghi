@@ -14,6 +14,7 @@ use App\Shop\Port\Out\FindEntityPort;
 use App\Shop\Port\Out\PersistEntityPort;
 use App\Shop\Port\Out\SendMessagePort;
 use App\Shop\Port\Out\WithdrawFromAccountPort;
+use Symfony\Component\Uid\Uuid;
 
 readonly class BuyItem implements BuyItemPort
 {
@@ -26,7 +27,7 @@ readonly class BuyItem implements BuyItemPort
     ) {
     }
 
-    public function buy(int $monsterId): BuyItemDto
+    public function buy(Uuid $monsterId): BuyItemDto
     {
         /** @var Monster $monsterEntity */
         $monsterEntity = $this->findEntity->find(Monster::class, $monsterId);

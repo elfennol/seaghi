@@ -13,6 +13,7 @@ use App\Tests\Shop\Application\EntityIdSetterTrait;
 use Exception;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 class ListMonsterTest extends TestCase
 {
@@ -34,7 +35,7 @@ class ListMonsterTest extends TestCase
      */
     public function testList(): void
     {
-        $monster = $this->buildMonster(1, 'lol_cat', 3, 150, 'Felix', 'The Cat', true, false);
+        $monster = $this->buildMonster(Uuid::fromString('11111111-1111-1111-1111-111111111111'), 'lol_cat', 3, 150, 'Felix', 'The Cat', true, false);
 
         $mockSearch = $this->createMock(SearchMonsterPort::class);
         $mockSearch->expects($this->once())
@@ -48,7 +49,7 @@ class ListMonsterTest extends TestCase
         $this::assertIsArray($result);
         $this::assertCount(1, $result);
         $this::assertInstanceOf(SearchMonsterDto::class, $result[0]);
-        $this::assertSame(1, $result[0]->id);
+        $this::assertSame(Uuid::fromString('11111111-1111-1111-1111-111111111111')->toRfc4122(), $result[0]->id->toRfc4122());
         $this::assertSame('lol_cat', $result[0]->categoryCode);
         $this::assertSame(3, $result[0]->level);
         $this::assertSame(150, $result[0]->price);
@@ -86,7 +87,7 @@ class ListMonsterTest extends TestCase
     }
 
     private function buildMonster(
-        int $monsterId,
+        Uuid $monsterId,
         string $categoryCode,
         int $level,
         int $price,

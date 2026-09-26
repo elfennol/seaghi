@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shop\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * A monster category.
@@ -23,14 +24,15 @@ class Category
     public const CODE_CARIBOU_AVENGER = 'caribou_avenger';
 
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator('doctrine.uuid_generator')]
+    private ?Uuid $id = null;
 
     #[ORM\Column(length: 50, unique: true)]
     private string $code;
 
-    public function getId(): ?int
+    public function getId(): ?Uuid
     {
         return $this->id;
     }

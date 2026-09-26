@@ -10,6 +10,7 @@ use App\Shop\Port\In\DataContract\SearchMonsterDto;
 use App\Shop\Port\In\ListItemPort;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 class ListMonsterTest extends TestCase
 {
@@ -32,7 +33,7 @@ class ListMonsterTest extends TestCase
         $request = new MonsterListRequest(levelMin: 1, levelMax: 5);
         $expectedMonsters = [
             new SearchMonsterDto(
-                id: 1,
+                id: Uuid::fromString('11111111-1111-1111-1111-111111111111'),
                 categoryCode: 'BEAST',
                 level: 3,
                 price: 100,

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shop\Port\In\DataContract;
 
+use Symfony\Component\Uid\Uuid;
+
 /**
  * An item of the result of the monster search.
  *
@@ -12,7 +14,7 @@ namespace App\Shop\Port\In\DataContract;
 readonly class SearchMonsterDto
 {
     public function __construct(
-        public int $id,
+        public Uuid $id,
         public string $categoryCode,
         public int $level,
         public int $price,
