@@ -64,7 +64,10 @@ phpstan:
 .PHONY: phpunit
 phpunit:
 	@echo "-------- phpunit --------"
-	./seaghi-qa/tools/phpunit/vendor/bin/phpunit --configuration seaghi-qa/tools/phpunit/phpunit.xml
+	./seaghi-qa/tools/phpunit/vendor/bin/phpunit --configuration seaghi-qa/tools/phpunit/phpunit.xml seaghi-account/tests/
+	./seaghi-qa/tools/phpunit/vendor/bin/phpunit --configuration seaghi-qa/tools/phpunit/phpunit.xml seaghi-battle/tests/
+	./seaghi-qa/tools/phpunit/vendor/bin/phpunit --configuration seaghi-qa/tools/phpunit/phpunit.xml seaghi-shop/tests/
+	#./seaghi-qa/tools/phpunit/vendor/bin/phpunit --configuration seaghi-qa/tools/phpunit/phpunit.xml
 
 .PHONY: rector
 rector:

@@ -16,10 +16,10 @@
         </testsuite>
     </testsuites>
     <source>
-        <include>
-            <directory suffix=".php">../../../seaghi-account/src</directory>
-            <directory suffix=".php">../../../seaghi-battle/src</directory>
-            <directory suffix=".php">../../../seaghi-shop/src</directory>
-        </include>
+<!--        <include>-->
+<!--            <directory suffix=".php">../../../seaghi-account/src</directory>-->
+<!--            <directory suffix=".php">../../../seaghi-battle/src</directory>-->
+<!--            <directory suffix=".php">../../../seaghi-shop/src</directory>-->
+<!--        </include>-->
     </source>
 </phpunit>
