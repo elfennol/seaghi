@@ -9,6 +9,7 @@ use App\Battle\Port\Out\FindEntityPort;
 use App\Battle\Port\Out\PersistEntityPort;
 use Doctrine\ORM\EntityManagerInterface;
 use RuntimeException;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Generic CRUD queries.
@@ -26,7 +27,7 @@ readonly class CrudQuery implements FindEntityPort, PersistEntityPort, FindAllEn
         $this->entityManager->flush();
     }
 
-    public function find(string $className, int $id): object
+    public function find(string $className, Uuid $id): object
     {
         $entity = $this->entityManager->find($className, $id);
         if (null === $entity) {

@@ -21,13 +21,13 @@
         "symfony/redis-messenger": "7.4.*",
         "symfony/runtime": "7.4.*",
         "symfony/serializer": "7.4.*",
+        "symfony/uid": "7.4.*",
         "symfony/validator": "7.4.*",
         "symfony/yaml": "7.4.*"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
-        "symfony/maker-bundle": "^1.48",
-        "symfony/phpunit-bridge": "^7.4"
+        "symfony/maker-bundle": "^1.48"
     },
     "config": {
         "allow-plugins": {
