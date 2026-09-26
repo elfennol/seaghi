@@ -1,5 +1,6 @@
 # You can execute the requests directly in PHPStorm.
 # Base urls defined in http-client.env.json.
+# Retrieve the correct UUIDs from the requests so you can use the right ones later.
 
 #~~~~~~~~ Account ~~~~~~~~#
 #
@@ -21,7 +22,7 @@ Accept: application/json
 
 ### Shop: buy a monster
 # When you buy a monster, this monster is sent to the battle.
-PUT {{shop_base_url}}/monster/buy/1
+PUT {{shop_base_url}}/monster/buy/01a0de8b-62bf-788d-8888-62df5f01403b
 Content-Type: application/json
 
 #~~~~~~~~ Battle ~~~~~~~~#
@@ -34,13 +35,13 @@ GET {{battle_base_url}}/monster/list
 Accept: application/json
 
 ### Battle: show a monster
-GET {{battle_base_url}}/monster/1/show
+GET {{battle_base_url}}/monster/01a0de8c-4eae-74eb-83ea-0cf835dcdfd7/show
 Accept: application/json
 
 ### Battle: hit a monster
-PUT {{battle_base_url}}/monster/1/hit
+PUT {{battle_base_url}}/monster/01a0de8c-4eae-74eb-83ea-0cf835dcdfd7/hit
 Content-Type: application/json
 
 ### Battle: heal a monster
-PUT {{battle_base_url}}/monster/1/heal
+PUT {{battle_base_url}}/monster/01a0de8c-4eae-74eb-83ea-0cf835dcdfd7/heal
 Content-Type: application/json

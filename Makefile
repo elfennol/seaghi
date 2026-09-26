@@ -18,7 +18,7 @@ shop-init:
 	composer install &&\
 	bin/console doctrine:database:drop --force &&\
 	bin/console doctrine:migrations:migrate -n &&\
-	cat fixtures.sql | xargs -0 bin/console dbal:run-sql
+	bin/console doctrine:fixtures:load --append
 
 .PHONY: shop-start
 shop-start:

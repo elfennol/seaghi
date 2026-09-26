@@ -20,8 +20,9 @@
 - Init seaghi-battle: `make battle-init`
 - Start seaghi-battle: `make battle-start`
 
-Start the consumer in the directory seaghi-battle
+Start the consumer:
 
 ```
+cd seaghi-battle/
 bin/console messenger:consume async
 ```

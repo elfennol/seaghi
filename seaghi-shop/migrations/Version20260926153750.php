@@ -6,23 +6,24 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20230326142843 extends AbstractMigration
+final class Version20260926153750 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Category data.';
+        return '';
     }
 
     public function up(Schema $schema): void
     {
-        $this->addSql("INSERT INTO category (code) VALUES ('wild_squirrel')");
-        $this->addSql("INSERT INTO category (code) VALUES ('shapeshifter_chicken')");
-        $this->addSql("INSERT INTO category (code) VALUES ('lol_cat')");
-        $this->addSql("INSERT INTO category (code) VALUES ('caribou_avenger')");
+        $this->addSql("INSERT INTO category (id, code) VALUES (:id, 'wild_squirrel')", ['id' => Uuid::v7()->toBinary()]);
+        $this->addSql("INSERT INTO category (id, code) VALUES (:id, 'shapeshifter_chicken')", ['id' => Uuid::v7()->toBinary()]);
+        $this->addSql("INSERT INTO category (id, code) VALUES (:id, 'lol_cat')", ['id' => Uuid::v7()->toBinary()]);
+        $this->addSql("INSERT INTO category (id, code) VALUES (:id, 'caribou_avenger')", ['id' => Uuid::v7()->toBinary()]);
     }
 
     public function down(Schema $schema): void
