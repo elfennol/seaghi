@@ -20,6 +20,7 @@ readonly class EffectCrudQuery implements FindAllEffectIndexedPort
      */
     public function findAllIndexed(): array
     {
+        /** @var array<string, Effect> */
         return $this->entityManager->createQueryBuilder()
             ->select('e')
             ->from(Effect::class, 'e', 'e.code')

@@ -24,6 +24,7 @@ readonly class ShowMonster implements ShowMonsterPort
     {
         /** @var Monster $monster */
         $monster = $this->findEntity->find(Monster::class, $monsterId);
+        assert($monster->getId() !== null);
 
         $effects = [];
         foreach ($monster->getEffects() as $effect) {

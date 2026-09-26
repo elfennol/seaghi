@@ -37,6 +37,7 @@ readonly class SpawnMonster implements SpawnMonsterPort
         $monster->setDefense($this->difficultyStrategy->buildDefense($category));
 
         $this->persistEntity->persist($monster);
+        assert($monster->getId() !== null);
 
         return new SpawnMonsterDto(
             $monster->getId(),

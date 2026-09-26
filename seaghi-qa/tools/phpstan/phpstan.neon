@@ -9,5 +9,9 @@ parameters:
         - */vendor/*
         - */config/reference.php
         - */tests/*
+        - */public/index.php
     bootstrapFiles:
         - ../phpunit/bootstrap.php
+    ignoreErrors:
+        - message: '#Property App\\Battle\\Entity\\.+::\$.+ is never assigned .+ so it can be removed from the property type\.#'
+        - message: '#Property App\\Shop\\Entity\\.+::\$.+ is never assigned .+ so it can be removed from the property type\.#'

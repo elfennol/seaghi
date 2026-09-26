@@ -113,7 +113,7 @@ class Monster
         return $this;
     }
 
-    public function isAvailable(): ?bool
+    public function isAvailable(): bool
     {
         return $this->available;
     }

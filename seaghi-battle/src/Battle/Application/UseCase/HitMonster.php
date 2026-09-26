@@ -57,6 +57,7 @@ readonly class HitMonster implements HitMonsterPort
         $monster->setEffects($effects);
 
         $this->persistEntity->persist($monster);
+        assert($monster->getId() !== null);
 
         return new HitMonsterDto(
             $monster->getId(),

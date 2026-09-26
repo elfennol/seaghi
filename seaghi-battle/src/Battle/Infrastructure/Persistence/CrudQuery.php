@@ -27,6 +27,9 @@ readonly class CrudQuery implements FindEntityPort, PersistEntityPort, FindAllEn
         $this->entityManager->flush();
     }
 
+    /**
+     * @param class-string $className
+     */
     public function find(string $className, Uuid $id): object
     {
         $entity = $this->entityManager->find($className, $id);
@@ -38,6 +41,8 @@ readonly class CrudQuery implements FindEntityPort, PersistEntityPort, FindAllEn
     }
 
     /**
+     * @param class-string $className
+     *
      * @return iterable<object>
      */
     public function findAll(string $className): iterable

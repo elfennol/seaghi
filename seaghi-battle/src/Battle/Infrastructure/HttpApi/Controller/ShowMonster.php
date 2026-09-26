@@ -7,6 +7,7 @@ namespace App\Battle\Infrastructure\HttpApi\Controller;
 use App\Battle\Port\In\DataContract\ShowMonsterDto;
 use App\Battle\Port\In\ShowMonsterPort;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Uid\Uuid;
 
 readonly class ShowMonster
 {
@@ -16,7 +17,7 @@ readonly class ShowMonster
     }
 
     #[Route('/monster/{monsterId}/show', methods: ['GET'])]
-    public function __invoke(int $monsterId): ShowMonsterDto
+    public function __invoke(Uuid $monsterId): ShowMonsterDto
     {
         return $this->showMonster->show($monsterId);
     }

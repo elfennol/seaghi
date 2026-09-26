@@ -31,6 +31,7 @@ readonly class ListItem implements ListItemPort
 
         $listResult = [];
         foreach ($this->searchMonster->search($levelMin, $levelMax) as $monsterEntity) {
+            assert($monsterEntity->getId() !== null);
             $listResult[] = new SearchMonsterDto(
                 $monsterEntity->getId(),
                 $monsterEntity->getCategory()->getCode(),

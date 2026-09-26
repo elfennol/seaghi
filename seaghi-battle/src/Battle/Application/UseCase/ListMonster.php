@@ -23,6 +23,7 @@ readonly class ListMonster implements ListMonsterPort
         $monsters = [];
         /** @var Monster $monster */
         foreach ($this->findAll->findAll(Monster::class) as $monster) {
+            assert($monster->getId() !== null);
             $monsters[] = new ListMonsterDto(
                 $monster->getId(),
                 $this->formatName->getFullName($monster),

@@ -26,6 +26,9 @@ class CrudQuery implements FindEntityPort, PersistEntityPort
         $this->entityManager->flush();
     }
 
+    /**
+     * @param class-string $className
+     */
     public function find(string $className, Uuid $id): object
     {
         $entity = $this->entityManager->find($className, $id);

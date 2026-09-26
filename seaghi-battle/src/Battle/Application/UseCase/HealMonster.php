@@ -38,6 +38,7 @@ readonly class HealMonster implements HealMonsterPort
     {
         /** @var Monster $monster */
         $monster = $this->findEntity->find(Monster::class, $monsterId);
+        assert($monster->getId() !== null);
 
         $healResult = $this->computeHeal->compute();
         $this->processHealth->heal($monster, $healResult);
@@ -45,7 +46,7 @@ readonly class HealMonster implements HealMonsterPort
         $this->persistEntity->persist($monster);
 
         return new HealMonsterDto(
-            $monster->getId(),
+            $monsterId,
             $monster->getCurrentHealth(),
             $healResult
         );

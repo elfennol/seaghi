@@ -9,6 +9,12 @@ make phpunit
 make rector
 ```
 
+All:
+
+```sh
+make qa
+```
+
 ## Functional tests
 
 See [seaghi-qa/functional-tests/play.http](../seaghi-qa/functional-tests/play.http).

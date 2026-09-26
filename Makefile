@@ -43,33 +43,42 @@ battle-start:
 
 .PHONY: deptrac
 deptrac:
+	@echo "-------- deptrac --------"
 	./seaghi-qa/tools/deptrac/vendor/bin/deptrac analyse --config-file=seaghi-qa/tools/deptrac/deptrac.yaml
 
 .PHONY: phpcs
 phpcs:
+	@echo "-------- phpcs --------"
 	cd seaghi-qa/tools/phpcs/ && ./vendor/bin/php-cs-fixer check --diff
 
 .PHONY: phpmd
 phpmd:
+	@echo "-------- phpmd --------"
 	./seaghi-qa/tools/phpmd/vendor/bin/phpmd analyze seaghi-account seaghi-battle seaghi-shop --ruleset=seaghi-qa/tools/phpmd/phpmd.xml
 
 .PHONY: phpstan
 phpstan:
+	@echo "-------- phpstan --------"
 	./seaghi-qa/tools/phpstan/vendor/bin/phpstan analyse --configuration=seaghi-qa/tools/phpstan/phpstan.neon
-
 
 .PHONY: phpunit
 phpunit:
+	@echo "-------- phpunit --------"
 	./seaghi-qa/tools/phpunit/vendor/bin/phpunit --configuration seaghi-qa/tools/phpunit/phpunit.xml
 
 .PHONY: rector
 rector:
+	@echo "-------- rector --------"
 	./seaghi-qa/tools/rector/vendor/bin/rector process --dry-run --config=seaghi-qa/tools/rector/rector.php
 
 .PHONY: %-orm-mapping-validation
 %-orm-mapping-validation:
+	@echo "-------- orm-mapping-validation --------"
 	cd seaghi-$* &&\
 	bin/console doctrine:schema:validate --skip-sync
+
+.PHONY: qa
+qa: phpcs phpmd phpstan phpunit rector deptrac
 
 .PHONY: qa-vendor-update
 qa-vendor-update:

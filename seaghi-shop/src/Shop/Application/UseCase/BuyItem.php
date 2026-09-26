@@ -31,6 +31,7 @@ readonly class BuyItem implements BuyItemPort
     {
         /** @var Monster $monsterEntity */
         $monsterEntity = $this->findEntity->find(Monster::class, $monsterId);
+        assert($monsterEntity->getId() !== null);
 
         $canBuy = true;
         $rejectionReason = null;
@@ -46,6 +47,7 @@ readonly class BuyItem implements BuyItemPort
         if (true === $canBuy) {
             $monsterEntity->setAvailable(false);
             $this->persistEntity->persist($monsterEntity);
+            assert($monsterEntity->getId() !== null);
             $this->sendMessage->send(new MonsterSoldMessage(
                 $monsterEntity->getFirstName(),
                 $monsterEntity->getLastName(),
@@ -57,7 +59,7 @@ readonly class BuyItem implements BuyItemPort
         return new BuyItemDto(
             $monsterEntity->getId(),
             $canBuy,
-            $rejectionReason->value ?? null
+            $rejectionReason->name ?? null
         );
     }
 }

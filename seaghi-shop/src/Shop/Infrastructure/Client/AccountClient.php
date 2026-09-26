@@ -26,6 +26,6 @@ readonly class AccountClient implements WithdrawFromAccountPort
      */
     public function withDraw(): bool
     {
-        return $this->httpClient->request('GET', $this->accountApiUrl . '/withdraw')->toArray()['status'];
+        return (bool) $this->httpClient->request('GET', $this->accountApiUrl . '/withdraw')->toArray()['status'];
     }
 }
