@@ -20,9 +20,7 @@ General diagram:
 Picture generated with:
 
 ```sh
-# docker build -f ./Dockerfile.deptrac -t deptrac .
-docker run --rm -v $(pwd)/seaghi-battle:/repo -u $(id -u ${USER}):$(id -g ${USER})\
- deptrac --formatter=graphviz-image --output=duck_archi_diag.png
+make deptrac-diag
 ```
 
 It looks like bird wings. So I called this architecture the **Seaghi Architecture** (**seag**ull + arc**hi**).

@@ -91,3 +91,8 @@ deptrac:
       - vendor
     seaghi_shop_entity:
       - vendor
+
+  formatters:
+    graphviz:
+      hidden_layers:
+        - vendor

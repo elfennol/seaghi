@@ -39,6 +39,12 @@ battle-start:
 	cd seaghi-battle &&\
 	symfony server:start --allow-http --no-tls --port=8002
 
+## Archi diag
+
+.PHONY: deptrac-diag
+deptrac-diag:
+	./seaghi-qa/tools/deptrac/vendor/bin/deptrac --config-file=seaghi-qa/tools/deptrac/deptrac.yaml --formatter=graphviz-image --output=duck_archi_diag.png
+
 ## QA
 
 .PHONY: deptrac
