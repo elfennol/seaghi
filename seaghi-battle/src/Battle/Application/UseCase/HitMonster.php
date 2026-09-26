@@ -14,6 +14,7 @@ use App\Battle\Port\Out\FindAllEffectIndexedPort;
 use App\Battle\Port\Out\FindEntityPort;
 use App\Battle\Port\Out\PersistEntityPort;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Hit a monster::
@@ -37,7 +38,7 @@ readonly class HitMonster implements HitMonsterPort
     ) {
     }
 
-    public function hit(int $monsterId): HitMonsterDto
+    public function hit(Uuid $monsterId): HitMonsterDto
     {
         /** @var Monster $monster */
         $monster = $this->findEntity->find(Monster::class, $monsterId);

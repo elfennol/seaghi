@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Battle\Port\In\DataContract;
 
+use Symfony\Component\Uid\Uuid;
+
 /**
  * An item of the result of the monster list.
  *
@@ -12,7 +14,7 @@ namespace App\Battle\Port\In\DataContract;
 readonly class ListMonsterDto
 {
     public function __construct(
-        public int $id,
+        public Uuid $id,
         public string $name,
     ) {
     }

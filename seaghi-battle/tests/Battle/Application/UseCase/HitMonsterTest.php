@@ -18,6 +18,7 @@ use App\Battle\Port\Out\PickRandomIntPort;
 use App\Tests\Battle\Application\EntityIdSetterTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 class HitMonsterTest extends TestCase
 {
@@ -46,7 +47,7 @@ class HitMonsterTest extends TestCase
         $this->findEntity->method('find')
             ->willReturn($this->buildMonster($defense));
 
-        $this::assertEquals($expectedHealth, $this->hitMonster->hit(1)->currentHealth);
+        $this::assertEquals($expectedHealth, $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
     }
 
     /**
@@ -63,7 +64,7 @@ class HitMonsterTest extends TestCase
         $this->findEntity->method('find')
             ->willReturn($this->buildMonster($defense));
 
-        $this::assertEquals($expectedHealth, $this->hitMonster->hit(1)->currentHealth);
+        $this::assertEquals($expectedHealth, $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
     }
 
     /**
@@ -77,7 +78,7 @@ class HitMonsterTest extends TestCase
         $this->findEntity->method('find')
             ->willReturn($this->buildMonster(10, 100, 50));
 
-        $hitResult = $this->hitMonster->hit(1);
+        $hitResult = $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
         $this::assertEquals(10, $hitResult->currentHealth);
         $this::assertContains(Effect::CODE_SERIOUS_INJURY, $hitResult->effects);
     }
@@ -93,7 +94,7 @@ class HitMonsterTest extends TestCase
         $this->findEntity->method('find')
             ->willReturn($this->buildMonster(10));
 
-        $hitResult = $this->hitMonster->hit(1);
+        $hitResult = $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
         $this::assertContains(Effect::CODE_BADASS, $hitResult->effects);
     }
 
@@ -148,7 +149,7 @@ class HitMonsterTest extends TestCase
         $monster->setMaxHealth($maxHealth);
         $monster->setCurrentHealth($currentHealth);
         $monster->setDefense($defense);
-        $this->setEntityId($monster, 1);
+        $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         return $monster;
     }

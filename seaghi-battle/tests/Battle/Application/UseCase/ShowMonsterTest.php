@@ -10,6 +10,7 @@ use App\Battle\Application\UseCase\ShowMonster;
 use App\Battle\Port\Out\FindEntityPort;
 use App\Tests\Battle\Application\EntityIdSetterTrait;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 class ShowMonsterTest extends TestCase
 {
@@ -27,11 +28,11 @@ class ShowMonsterTest extends TestCase
     public function testShow(): void
     {
         $this->findEntity->method('find')
-            ->willReturn($this->buildMonster(1, 'my_first_name1', 'my_last_name1'));
+            ->willReturn($this->buildMonster(Uuid::fromString('11111111-1111-1111-1111-111111111111'), 'my_first_name1', 'my_last_name1'));
 
-        $monster = $this->showMonster->show(1);
+        $monster = $this->showMonster->show(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
-        $this::assertEquals(1, $monster->id);
+        $this::assertEquals(Uuid::fromString('11111111-1111-1111-1111-111111111111'), $monster->id);
         $this::assertEquals('my_first_name1 my_last_name1', $monster->name);
         $this::assertEquals(20, $monster->maxHealth);
         $this::assertEquals(10, $monster->currentHealth);
@@ -46,7 +47,7 @@ class ShowMonsterTest extends TestCase
         $this->showMonster = new ShowMonster($this->findEntity, $this->formatName);
     }
 
-    private function buildMonster(int $id, string $firstName, string $lastName): Monster
+    private function buildMonster(Uuid $id, string $firstName, string $lastName): Monster
     {
         $monster = new Monster();
         $monster->setFirstName($firstName);

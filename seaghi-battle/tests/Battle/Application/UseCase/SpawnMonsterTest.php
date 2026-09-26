@@ -13,6 +13,7 @@ use App\Tests\Battle\Application\EntityIdSetterTrait;
 use Exception;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 class SpawnMonsterTest extends TestCase
 {
@@ -33,7 +34,7 @@ class SpawnMonsterTest extends TestCase
     {
         $this->persistEntity->method('persist')
             ->willReturnCallback(function (Monster $monster): void {
-                $this->setEntityId($monster, 1);
+                $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
             });
 
         $spawnMonster = $this->spawnMonster->spawn(
@@ -58,7 +59,7 @@ class SpawnMonsterTest extends TestCase
 
         $this->persistEntity->method('persist')
             ->willReturnCallback(function (Monster $monster): void {
-                $this->setEntityId($monster, 1);
+                $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
             });
 
         $this->spawnMonster->spawn(

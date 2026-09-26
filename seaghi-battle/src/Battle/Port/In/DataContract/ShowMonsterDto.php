@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Battle\Port\In\DataContract;
 
+use Symfony\Component\Uid\Uuid;
+
 /**
  * Result return when a monster is shown.
  *
@@ -15,7 +17,7 @@ readonly class ShowMonsterDto
      * @param ShowEffectDto[] $effects
      */
     public function __construct(
-        public int $id,
+        public Uuid $id,
         public string $name,
         public int $currentHealth,
         public int $maxHealth,

@@ -33,6 +33,11 @@ services:
             $format: 'json'
     Symfony\Component\Messenger\Transport\Serialization\SerializerInterface $msgJsonSerializer: '@Symfony\Component\Messenger\Transport\Serialization\Serializer'
 
+    Symfony\Component\Uid\Command\GenerateUlidCommand: ~
+    Symfony\Component\Uid\Command\GenerateUuidCommand: ~
+    Symfony\Component\Uid\Command\InspectUlidCommand: ~
+    Symfony\Component\Uid\Command\InspectUuidCommand: ~
+
 when@prod: &prod
     services:
         # Port IN

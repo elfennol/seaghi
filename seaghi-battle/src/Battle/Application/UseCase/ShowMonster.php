@@ -10,6 +10,7 @@ use App\Battle\Port\In\DataContract\ShowMonsterDto;
 use App\Battle\Entity\Monster;
 use App\Battle\Port\In\ShowMonsterPort;
 use App\Battle\Port\Out\FindEntityPort;
+use Symfony\Component\Uid\Uuid;
 
 readonly class ShowMonster implements ShowMonsterPort
 {
@@ -19,7 +20,7 @@ readonly class ShowMonster implements ShowMonsterPort
     ) {
     }
 
-    public function show(int $monsterId): ShowMonsterDto
+    public function show(Uuid $monsterId): ShowMonsterDto
     {
         /** @var Monster $monster */
         $monster = $this->findEntity->find(Monster::class, $monsterId);

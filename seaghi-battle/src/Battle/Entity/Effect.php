@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Battle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * An effect can be attached to the monster during battle.
@@ -17,14 +18,15 @@ class Effect
     public const string CODE_BADASS = 'badass';
 
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator('doctrine.uuid_generator')]
+    private ?Uuid $id = null;
 
     #[ORM\Column(length: 50, unique: true)]
     private string $code;
 
-    public function getId(): ?int
+    public function getId(): ?Uuid
     {
         return $this->id;
     }

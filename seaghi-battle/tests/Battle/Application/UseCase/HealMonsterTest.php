@@ -15,6 +15,7 @@ use App\Battle\Port\Out\PickRandomIntPort;
 use App\Tests\Battle\Application\EntityIdSetterTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 class HealMonsterTest extends TestCase
 {
@@ -45,12 +46,12 @@ class HealMonsterTest extends TestCase
         $monster->setMaxHealth(20);
         $monster->setCurrentHealth(10);
         $monster->setDefense(10);
-        $this->setEntityId($monster, 1);
+        $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         $this->findEntity->method('find')
             ->willReturn($monster);
 
-        $this::assertEquals($expectedHealth, $this->healMonster->heal(1)->currentHealth);
+        $this::assertEquals($expectedHealth, $this->healMonster->heal(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
     }
 
     /**

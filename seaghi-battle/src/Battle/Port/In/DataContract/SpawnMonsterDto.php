@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Battle\Port\In\DataContract;
 
+use Symfony\Component\Uid\Uuid;
+
 /**
  * The result of a created monster.
  *
@@ -12,7 +14,7 @@ namespace App\Battle\Port\In\DataContract;
 readonly class SpawnMonsterDto
 {
     public function __construct(
-        public int $id,
+        public Uuid $id,
         public int $maxHealth,
         public int $defense,
     ) {

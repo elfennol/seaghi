@@ -11,6 +11,7 @@ use App\Battle\Entity\Monster;
 use App\Battle\Port\In\HealMonsterPort;
 use App\Battle\Port\Out\FindEntityPort;
 use App\Battle\Port\Out\PersistEntityPort;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Heal a monster:
@@ -33,7 +34,7 @@ readonly class HealMonster implements HealMonsterPort
     /**
      * Heal the id $monsterId monster.
      */
-    public function heal(int $monsterId): HealMonsterDto
+    public function heal(Uuid $monsterId): HealMonsterDto
     {
         /** @var Monster $monster */
         $monster = $this->findEntity->find(Monster::class, $monsterId);

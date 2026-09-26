@@ -1,0 +1,6 @@
+framework:
+  uid:
+    default_uuid_version: 7
+    name_based_uuid_version: 5
+    name_based_uuid_namespace: 01a0dd9a-4dfc-7090-b575-fe7e3acddfcc
+    time_based_uuid_version: 7

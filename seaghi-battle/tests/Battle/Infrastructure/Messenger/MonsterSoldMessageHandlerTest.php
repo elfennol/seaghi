@@ -12,6 +12,7 @@ use App\Battle\Port\In\SpawnMonsterPort;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Uid\Uuid;
 
 class MonsterSoldMessageHandlerTest extends TestCase
 {
@@ -31,7 +32,7 @@ class MonsterSoldMessageHandlerTest extends TestCase
         $this->spawnMonster
             ->expects($this->once())
             ->method('spawn')
-            ->willReturn(new SpawnMonsterDto(1, 40, 10));
+            ->willReturn(new SpawnMonsterDto(Uuid::fromString('11111111-1111-1111-1111-111111111111'), 40, 10));
 
         ($this->messageHandler)($message);
     }

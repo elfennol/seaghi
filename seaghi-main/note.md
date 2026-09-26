@@ -152,6 +152,25 @@ Prefer one public method in a use case. It's easier to see use cases at a glance
 
 A service must be stateless.
 
+## Library (dependency)
+
+### What Can Go in the Domain Core?
+
+You can freely use external libraries in your domain/application layers if they satisfy three conditions:
+
+- **Pure in-memory operations:** They do not perform network requests, file access, or database I/O.
+- **Stable & lightweight:** They have no transitively heavy framework dependencies.
+- **Represent generic concepts or specifications:** Money, math, string manipulation, dates, or validation assertions.
+
+### What MUST Stay in the Infrastructure Layer?
+
+Any dependency that touches external state, framework containers, or I/O drivers belongs exclusively in adapters and infrastructure:
+
+- **Framework Core**
+- **Persistence / ORM**
+- **Network & Serialization**
+- **Third-Party APIs:**
+
 ## Short circuit?
 
 For example, a Controller in Infrastructure only needs raw data from an API. Do we need to call Application for that (there isn't really a use case), or do we call the API directly from the controller? The two solutions may be acceptable. If we don't call the Application, then the use case does not appear in Application, and there is a direct dependency between the controller view and the API. If we call the application, then there is more code and more mapping, but the use case appears.
