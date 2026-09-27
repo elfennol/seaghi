@@ -42,7 +42,7 @@ dot -T svg -o overview.svg overview.gv
 │   ├── Component           # Common components for the use cases
 |   ├── Enum                # Some enumerations
 │   ├── UseCase             # Functional use cases
-├── Entity                  # ORM (ODM) Entities
+├── Entity                  # Rich Domain / ORM Entities (Invariants & State transitions)
 ├── Infrastructure          # Technical
 │   ├── Client              # External services call
 │   ├── EventListener       # Event listeners 
@@ -68,24 +68,28 @@ Infrastructure is here to speak with SQL DB, Redis, RabbitMQ, HTTP API, local fo
 The set of the use cases without being concerned with technical resources.
 
 I have at least two folders in Application:
-- UseCase: objects with only one method.
-- Component: business rules used by use cases. If a method of a component uses data from an entity, we should pass the entire entity (and not just the fields we might need) to keep this method with a stable signature.
+- UseCase: objects with only one public method representing a business use case.
+- Component: cross-cutting business rules, policies, or domain services used by use cases when a rule spans multiple entities or requires external collaborators.
 
-## What is the Domain?
+## What is the Domain? (Pragmatic Domain: Combining Domain & Entity)
 
-No domain here (no domain objects). I think it is the most controversial choice here.
+Rather than maintaining two parallel object hierarchies (a pure Domain object and an ORM Entity) and suffering from "mapping hell", we pragmatically combine the Domain model with the persistence model in **Rich Entities**.
 
-I want to reduce code and especially the mapping. I want to avoid the trap of bloated domain objects that sometimes have too much responsibility.
+Doctrine ORM is configured directly on these entities, but they are **not anemic**:
+- **No naive public setters:** We avoid generic setters like `setAvailable(bool)` or `setLevel(int)` that leave the entity open to arbitrary, illegal state mutations.
+- **Intention-revealing business methods:** State transitions are guarded by semantic methods (e.g. `markAsSold()`, `levelUp()`, `isReadyToFight()`).
+- **Make illegal states unrepresentable:** An entity must always represent a valid state. We do not allow an entity to be in an invalid state during its lifecycle.
+- **Tell, Don't Ask:** Instead of extracting entity fields to check logic externally in a service, we tell the entity what action to perform.
 
-I use anemic Entity. An entity may be linked to an ORM, ODM, ... I choose to separate data and behavior. Business rules are split into services and apply to entities through their methods. This practice goes against the principles of DDD.
-
-We can define validations in the entity (via annotation, via setter). We can create special methods to keep some groups of properties valid. An entity can have an invalid state during its journey in a layer, and we can validate this entity just before crossing a layer.
-
-Where to put these entities? Since there is a dependency with the infrastructure, I put these objects in a separate namespace to represent these dependencies (folder "Entity").
+### Preventing Entity Bloat:
+To prevent entities from growing into "God objects":
+1. **Scope to Bounded Contexts:** An entity model in `Shop` is distinct from an entity in `Battle`, even if they share or link to the same database tables.
+2. **CQRS for Reads:** Entities are strictly write models (for state changes and invariants). Display, query, and search operations bypass the entity and return read DTOs directly.
+3. **Value Objects:** Group related cohesive properties and behavior into immutable Value Objects (e.g. `Price`, `Health`).
+4. **Policy / Rule Services:** Complex multi-entity calculations or business policies that evolve frequently go into dedicated rule/policy services in Application, while intrinsic state invariants remain inside the entity.
 
 - https://www.martinfowler.com/bliki/AnemicDomainModel.html
-- https://tmichel.github.io/2015/09/14/oo-controversies-tell-dont-ask-vs-the-web/
-- http://blog.inf.ed.ac.uk/sapm/2014/02/04/the-anaemic-domain-model-is-no-anti-pattern-its-a-solid-design/
+- https://martinfowler.com/bliki/TellDontAsk.html
 - https://enterprisecraftsmanship.com/posts/having-the-domain-model-separate-from-the-persistence-model/
 - https://khorikov.org/posts/2020-04-20-when-do-you-need-persistence-model/
 
@@ -128,9 +132,12 @@ Some DTOs are shared between Application and Infrastructure. I consider an immut
 
 ## Entities are mutable
 
-An Entity has an identity and change during its lifetime. For example, a customer address may change, but it is still the same customer. The id, if not null, never changes. In the case of an ORM, do not define a setter for the id; it is managed by the ORM.
+An Entity has an identity and changes during its lifetime. For example, a customer address may change, but it is still the same customer.
 
-Prefer UUIDv7 over autoincrement.
+- The ID, once assigned, never changes. Never define a setter for the ID; it is managed by the ORM or generated at instantiation.
+- Prefer UUIDv7 over autoincrement.
+- Avoid exposing public setters for mutable state. Use semantic methods (`changeAddress()`, `markAsSold()`) that enforce invariants before updating internal properties.
+- Entities should remain shielded from external layers: Controllers and API adapters receive DTOs (DataContracts), never entities directly.
 
 ## Controller
 
@@ -232,12 +239,11 @@ Do not fear duplicating code between context. Do not create common code between 
 
 ## Validations
 
-- Infrastructure: technical validations (not null, positive number, ...)
-- Application: business validations (person age check, valid address, ...)
+Validations are divided into three distinct levels:
 
-For example:
-- In infrastructure: level must be a positive number (`App\Battle\Infrastructure\Messenger\MonsterSoldMessageHandler::__invoke`)
-- In Application: there is a business rule that said monsters below level 2 are not accepted for battle (`App\Battle\Application\UseCase\SpawnMonster::spawn`).
+1. **Infrastructure (Input & Format Validation):** Technical input validation on DTOs/Requests via attributes or constraints (e.g. valid JSON format, non-empty string, valid UUID format).
+2. **Entity & Value Objects (Domain Invariants):** Invariants that must be true at all times (e.g. a level cannot be negative, a sick monster cannot fight, price must be greater than zero). Protected by private constructors, Value Objects, and entity business methods.
+3. **Application (Contextual Business Rules & Policies):** Complex business rules involving external collaborators or multi-entity coordination (e.g. checking customer balance against an account API, verifying battle season rules).
 
 ## Fluent interface for getter and setter?
 
