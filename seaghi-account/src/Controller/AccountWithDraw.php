@@ -7,9 +7,9 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
-class AccountWithDraw
+readonly class AccountWithDraw
 {
-    #[Route('/account/withdraw')]
+    #[Route('/account/withdraw', methods: ['GET'])]
     public function __invoke(): JsonResponse
     {
         // No spending limit! \o/
