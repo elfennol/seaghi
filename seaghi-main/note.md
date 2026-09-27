@@ -39,24 +39,22 @@ dot -T svg -o overview.svg overview.gv
 
 ```
 ├── Application
-│   ├── Component           # Common components for the use cases
-|   ├── Enum                # Some enumerations
-│   ├── UseCase             # Functional use cases
+│   ├── Component           # Cross-cutting policies and domain services
+|   ├── Enum                # Domain enumerations
+│   └── UseCase             # Functional use cases (concrete, directly called by controllers)
 ├── Entity                  # Rich Domain / ORM Entities (Invariants & State transitions)
-├── Infrastructure          # Technical
+├── Infrastructure          # Technical delivery & adapters
 │   ├── Client              # External services call
 │   ├── EventListener       # Event listeners 
 │   ├── HttpApi             # Internal API
 │   │   ├── Controller
 │   │   └── Dto
 │   ├── Messenger           # Message manager
-│   └── Persistence         # Persistence (SQL, ...): mainly repo adapter
-└── Port                    # Interfaces between Application and Infrastructure
-    ├── In                  # From Infrastructure To Application
-    │   └── DataContract    # Data holders
-    └── Out                 # From Application To Infrastructure
-        ├── DataContract    # Data holders
-        └── MessageContract # Message data holders
+│   └── Persistence         # Persistence (SQL, ...): repo adapters
+└── Port                    # Outbound interfaces & Cross-layer contracts
+    ├── DataContract        # Cross-layer DTOs (Use Case inputs & outputs)
+    ├── MessageContract     # Asynchronous message data holders
+    └── Out                 # Outbound interfaces (Repositories, Clients, Messenger, Transactions)
 ```
 
 ## What is Infrastructure?
@@ -102,7 +100,22 @@ To prevent entities from growing into "God objects":
 
 ## What is Port
 
-The border between the Application and the Infrastructure: only interfaces and data contracts.
+Port represents the boundary between Application and Infrastructure:
+
+### 1. Inbound: No 1-to-1 `Port\In` Interfaces (Pragmatic Inward Dependencies)
+We intentionally **do not create 1-to-1 interfaces for Use Cases** (no `BuyItemPort` for `BuyItem`).
+- **Clean Architecture Dependency Rule:** Outer delivery mechanisms (Controllers, CLI commands, Message Handlers) naturally depend **inward** on the Application core (`Controller -> UseCase`).
+- **KISS & Zero Boilerplate:** Business Use Cases almost never have multiple implementations in production. Dropping `Port\In` interfaces eliminates redundant single-method interfaces, saves 30% file overhead, and allows Symfony to autowire Use Cases directly with zero manual configuration in `services.yaml`.
+- **Testing:** Controllers can easily stub or mock concrete Use Cases in PHPUnit without requiring an interface.
+
+### 2. Outbound (`Port/Out`): Strict Dependency Inversion
+The Application layer must never depend on external technical infrastructure (Doctrine ORM, Redis, RabbitMQ, HTTP APIs).
+- Outbound interfaces (`MonsterRepositoryPort`, `TransactionPort`, `WithdrawFromAccountPort`, `SendMessagePort`) live in `Port/Out`.
+- Infrastructure implements these interfaces in `Infrastructure/Persistence`, `Infrastructure/Client`, etc.
+
+### 3. Contracts (`DataContract` & `MessageContract`)
+- `DataContract`: Immutable DTOs exchanged between outer layers and Use Cases (request inputs and response outputs).
+- `MessageContract`: Immutable message objects dispatched for asynchronous processing.
 
 ## What is a (bounded) context?
 
@@ -189,13 +202,11 @@ For example, a Controller in Infrastructure only needs raw data from an API. Do 
 
 ## Autowiring (Symfony)
 
-We can exclude Port and Entity folders from available services.
+We can exclude `Port` and `Entity` folders from service discovery.
 
-In `services.yaml` do not match interfaces in `Port` for test env (use mocks in unit tests). Match interfaces for dev and prod env. For example:
+Because Use Cases are concrete classes, Symfony autowires them automatically into Controllers with **zero configuration** in `services.yaml`.
 
-```yaml
-App\Battle\Port\In\HitMonsterPort: '@App\Battle\Application\UseCase\HitMonster'
-```
+For outbound interfaces in `Port/Out` (`MonsterRepositoryPort`, `TransactionPort`), Symfony autowires them automatically to their respective Infrastructure implementation classes. Manual aliases in `services.yaml` are only required if an interface has multiple implementations in the same environment.
 
 ## The exceptions
 
