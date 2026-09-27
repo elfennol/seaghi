@@ -69,7 +69,7 @@ The set of the use cases without being concerned with technical resources.
 
 I have at least two folders in Application:
 - UseCase: objects with only one public method representing a business use case.
-- Component: cross-cutting business rules, policies, or domain services used by use cases when a rule spans multiple entities or requires external collaborators.
+- Component: cross-cutting business rules, policies, or domain services used by use cases when a rule spans multiple entities or requires external collaborators. When passing data to a Component or helper, pass only the required primitives or Value Objects (following the Interface Segregation Principle), not the full ORM entity graph. This keeps components reusable and trivial to unit-test.
 
 ## What is the Domain? (Pragmatic Domain: Combining Domain & Entity)
 
@@ -80,6 +80,13 @@ Doctrine ORM is configured directly on these entities, but they are **not anemic
 - **Intention-revealing business methods:** State transitions are guarded by semantic methods (e.g. `markAsSold()`, `levelUp()`, `isReadyToFight()`).
 - **Make illegal states unrepresentable:** An entity must always represent a valid state. We do not allow an entity to be in an invalid state during its lifecycle.
 - **Tell, Don't Ask:** Instead of extracting entity fields to check logic externally in a service, we tell the entity what action to perform.
+
+### Preventing Infrastructure Leaks in Rich Entities:
+Even though entities use Doctrine mapping attributes directly, we must prevent infrastructure mechanics from polluting application logic:
+- **Avoid Lazy-Loading in Application logic:** When a Use Case requires related entities, the repository must eager-load them (e.g. DQL `JOIN FETCH`). Accessing an uninitialized relation in Application should never silently trigger hidden SQL queries or throw detached proxy exceptions.
+- **Keep Collection signatures native:** Internally, entities can use `Doctrine\Common\Collections\Collection`, but public getters must return a native PHP `array` (`$this->skills->toArray()`) or native `iterable`. This prevents Doctrine interfaces from leaking into Application signatures.
+- **Defensive copying:** Returning `$collection->toArray()` ensures callers cannot mutate the entity's internal collection from the outside.
+- **Favor domain actions over exposing collections:** Prefer methods like `$monster->learnSkill($skill)` or `$monster->hasSkill($code)` rather than exposing raw collections.
 
 ### Preventing Entity Bloat:
 To prevent entities from growing into "God objects":
