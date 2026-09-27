@@ -1,4 +1,4 @@
-# Notes on my pragmatic (controversial?) choices on code architecture
+# Some thoughts on code architecture
 
 These are my few notes on what might be a good pragmatic architecture for an application.
 
