@@ -207,9 +207,44 @@ We may use a standard PHP exception in Application.
 
 Avoid inheritance. Use composition.
 
-## Do not use one bloated repository (adapter) for each entity
+## Repositories & Persistence (Ports & Transactions)
 
-Split the repositories (adapters).
+### 1. Typed Repository Ports over Generic CRUD
+Do not use a generic `FindEntityPort` or `PersistEntityPort` that handles `object`. Generic ports destroy compile-time type safety, disable PHPStan static analysis, and force brittle `/** @var */` and `assert()` annotations everywhere.
+
+- **Split repositories per Aggregate Root:** Create dedicated, typed outbound ports (e.g. `MonsterRepositoryPort`) in `Port/Out`.
+- **Differentiate `get()` and `find()`:**
+  - `get(Uuid $id): Monster` throws a `MonsterNotFoundException` immediately if not found (eliminating repetitive null checks in Use Cases).
+  - `find(Uuid $id): ?Monster` returns nullable when absence is a normal, expected business outcome.
+- **Save explicitly:** `save(Monster $monster): void` declares the entity for persistence.
+
+### 2. Atomic Transactions via `TransactionPort::run(callable)`
+Avoid leaking technical ORM jargon like `flush()` or `unitOfWork` into Use Cases. Instead, use an explicit, business-oriented transaction runner:
+
+```php
+namespace App\Shop\Port\Out;
+
+interface TransactionPort
+{
+    /**
+     * @template T
+     * @param callable(): T $operation
+     * @return T
+     */
+    public function run(callable $operation): mixed;
+}
+```
+
+- **Implementation in Infrastructure:** Implemented via Doctrine's `$entityManager->wrapInTransaction($callable)`.
+- **Performance:** Avoids multiple flushes across services. A single transaction computes change-sets once, minimizes database round-trips, and shortens row lock durations.
+- **Predictable & Universal:** Works identically across Web Controllers, Messenger workers, CLI commands, and PHPUnit integration tests without fragmented, magic event listeners.
+- **Automatic Rollback:** If an exception is thrown inside the callable, the transaction rolls back automatically.
+
+### 3. Safe Event & Message Dispatching
+Never dispatch asynchronous messages (e.g. RabbitMQ, Redis) inside or before the database transaction:
+- Dispatch messages strictly **after** `$this->transaction->run()` commits successfully.
+- If the transaction fails or rolls back, execution halts and the message is never sent.
+- **Test in PHPUnit:** Always write a unit test with `$sendMessageMock->expects($this->never())->method('send')` to verify that when a transaction fails, no message is dispatched.
 
 ## Comment
 
@@ -251,12 +286,6 @@ Validations are divided into three distinct levels:
 1. **Infrastructure (Input & Format Validation):** Technical input validation on DTOs/Requests via attributes or constraints (e.g. valid JSON format, non-empty string, valid UUID format).
 2. **Entity & Value Objects (Domain Invariants):** Invariants that must be true at all times (e.g. a level cannot be negative, a sick monster cannot fight, price must be greater than zero). Protected by private constructors, Value Objects, and entity business methods.
 3. **Application (Contextual Business Rules & Policies):** Complex business rules involving external collaborators or multi-entity coordination (e.g. checking customer balance against an account API, verifying battle season rules).
-
-## Fluent interface for getter and setter?
-
-I don't like fluent interface for getter and setter. Nevertheless, it's widely used.
-
-- https://ocramius.github.io/blog/fluent-interfaces-are-evil/
 
 ## Use a tool to check the dependencies
 
