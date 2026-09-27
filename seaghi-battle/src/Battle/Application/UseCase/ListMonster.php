@@ -4,29 +4,27 @@ declare(strict_types=1);
 
 namespace App\Battle\Application\UseCase;
 
-use App\Battle\Application\Component\FormatName;
-use App\Battle\Port\In\DataContract\ListMonsterDto;
-use App\Battle\Entity\Monster;
-use App\Battle\Port\In\ListMonsterPort;
-use App\Battle\Port\Out\FindAllEntityPort;
+use App\Battle\Port\DataContract\ListMonsterDto;
+use App\Battle\Port\Out\MonsterRepositoryPort;
 
-readonly class ListMonster implements ListMonsterPort
+readonly class ListMonster
 {
     public function __construct(
-        private FindAllEntityPort $findAll,
-        private FormatName $formatName,
+        private MonsterRepositoryPort $monsterRepository,
     ) {
     }
 
+    /**
+     * @return ListMonsterDto[]
+     */
     public function list(): array
     {
         $monsters = [];
-        /** @var Monster $monster */
-        foreach ($this->findAll->findAll(Monster::class) as $monster) {
+        foreach ($this->monsterRepository->findAll() as $monster) {
             assert($monster->getId() !== null);
             $monsters[] = new ListMonsterDto(
                 $monster->getId(),
-                $this->formatName->getFullName($monster),
+                $monster->getFullName(),
             );
         }
 

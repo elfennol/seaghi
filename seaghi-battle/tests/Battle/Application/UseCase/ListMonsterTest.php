@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Battle\Application\UseCase;
 
-use App\Battle\Application\Component\FormatName;
-use App\Battle\Entity\Monster;
 use App\Battle\Application\UseCase\ListMonster;
-use App\Battle\Port\Out\FindAllEntityPort;
+use App\Battle\Entity\Monster;
+use App\Battle\Port\Out\MonsterRepositoryPort;
 use App\Tests\Battle\Application\EntityIdSetterTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
@@ -17,15 +16,12 @@ class ListMonsterTest extends TestCase
     use EntityIdSetterTrait;
 
     private ListMonster $listMonster;
-    private FindAllEntityPort $findAll;
-    private FormatName $formatName;
+    private MonsterRepositoryPort $monsterRepository;
 
     protected function setUp(): void
     {
-        $this->findAll = $this->createStub(FindAllEntityPort::class);
-        $this->formatName = new FormatName();
-
-        $this->listMonster = new ListMonster($this->findAll, $this->formatName);
+        $this->monsterRepository = $this->createStub(MonsterRepositoryPort::class);
+        $this->listMonster = new ListMonster($this->monsterRepository);
     }
 
     /**
@@ -34,7 +30,7 @@ class ListMonsterTest extends TestCase
      */
     public function testList(): void
     {
-        $this->findAll->method('findAll')->willReturn([
+        $this->monsterRepository->method('findAll')->willReturn([
             $this->buildMonster(Uuid::fromString('11111111-1111-1111-1111-111111111111'), 'my_first_name1', 'my_last_name1'),
             $this->buildMonster(Uuid::fromString('22222222-2222-2222-2222-222222222222'), 'my_first_name2', 'my_last_name2'),
         ]);
@@ -49,9 +45,7 @@ class ListMonsterTest extends TestCase
 
     private function buildMonster(Uuid $id, string $firstName, string $lastName): Monster
     {
-        $monster = new Monster();
-        $monster->setFirstName($firstName);
-        $monster->setLastName($lastName);
+        $monster = new Monster($firstName, $lastName, 20, 10);
         $this->setEntityId($monster, $id);
 
         return $monster;

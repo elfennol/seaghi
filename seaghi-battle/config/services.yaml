@@ -40,18 +40,10 @@ services:
 
 when@prod: &prod
     services:
-        # Port IN
-        App\Battle\Port\In\HitMonsterPort: '@App\Battle\Application\UseCase\HitMonster'
-        App\Battle\Port\In\HealMonsterPort: '@App\Battle\Application\UseCase\HealMonster'
-        App\Battle\Port\In\ListMonsterPort: '@App\Battle\Application\UseCase\ListMonster'
-        App\Battle\Port\In\ShowMonsterPort: '@App\Battle\Application\UseCase\ShowMonster'
-        App\Battle\Port\In\SpawnMonsterPort: '@App\Battle\Application\UseCase\SpawnMonster'
-
         # Port OUT
-        App\Battle\Port\Out\FindEntityPort: '@App\Battle\Infrastructure\Persistence\CrudQuery'
-        App\Battle\Port\Out\PersistEntityPort: '@App\Battle\Infrastructure\Persistence\CrudQuery'
-        App\Battle\Port\Out\FindAllEntityPort: '@App\Battle\Infrastructure\Persistence\CrudQuery'
-        App\Battle\Port\Out\FindAllEffectIndexedPort: '@App\Battle\Infrastructure\Persistence\EffectCrudQuery'
+        App\Battle\Port\Out\MonsterRepositoryPort: '@App\Battle\Infrastructure\Persistence\DoctrineMonsterRepository'
+        App\Battle\Port\Out\EffectRepositoryPort: '@App\Battle\Infrastructure\Persistence\DoctrineEffectRepository'
+        App\Battle\Port\Out\TransactionPort: '@App\Battle\Infrastructure\Persistence\DoctrineTransaction'
         App\Battle\Port\Out\PickRandomIntPort: '@App\Battle\Infrastructure\Random\RandomProcessor'
 
 when@dev:

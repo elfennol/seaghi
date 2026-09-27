@@ -69,6 +69,7 @@ deptrac:
       - vendor
     seaghi_battle_infrastructure:
       - seaghi_battle_port
+      - seaghi_battle_application
       - seaghi_battle_entity
       - vendor
     seaghi_battle_port:

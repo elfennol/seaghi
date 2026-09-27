@@ -7,6 +7,7 @@ namespace App\Battle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -19,7 +20,7 @@ use Symfony\Component\Uid\Uuid;
  * A monster have a name (a very scary).
  */
 #[ORM\Entity]
-#[ORM\Table(name: "monster")]
+#[ORM\Table(name: 'monster')]
 class Monster
 {
     #[ORM\Id]
@@ -28,20 +29,8 @@ class Monster
     #[ORM\CustomIdGenerator('doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
-    #[ORM\Column(length: 255)]
-    private string $firstName;
-
-    #[ORM\Column(length: 255)]
-    private string $lastName;
-
-    #[ORM\Column(options: ["default" => 0])]
+    #[ORM\Column(options: ['default' => 0])]
     private int $currentHealth;
-
-    #[ORM\Column(options: ["default" => 0])]
-    private int $maxHealth;
-
-    #[ORM\Column(options: ["default" => 0])]
-    private int $defense;
 
     /**
      * @var Collection<int, Effect>
@@ -49,8 +38,18 @@ class Monster
     #[ORM\ManyToMany(targetEntity: Effect::class)]
     private Collection $effects;
 
-    public function __construct()
-    {
+    public function __construct(
+        #[ORM\Column(length: 255)]
+        private string $firstName,
+        #[ORM\Column(length: 255)]
+        private string $lastName,
+        #[ORM\Column(options: ['default' => 0])]
+        private int $maxHealth,
+        #[ORM\Column(options: ['default' => 0])]
+        private int $defense,
+        ?int $currentHealth = null,
+    ) {
+        $this->currentHealth = $currentHealth ?? $maxHealth;
         $this->effects = new ArrayCollection();
     }
 
@@ -64,23 +63,14 @@ class Monster
         return $this->firstName;
     }
 
-    public function setFirstName(string $firstName): self
-    {
-        $this->firstName = $firstName;
-
-        return $this;
-    }
-
     public function getLastName(): string
     {
         return $this->lastName;
     }
 
-    public function setLastName(string $lastName): self
+    public function getFullName(): string
     {
-        $this->lastName = $lastName;
-
-        return $this;
+        return $this->firstName . ' ' . $this->lastName;
     }
 
     public function getCurrentHealth(): int
@@ -88,23 +78,9 @@ class Monster
         return $this->currentHealth;
     }
 
-    public function setCurrentHealth(int $currentHealth): self
-    {
-        $this->currentHealth = $currentHealth;
-
-        return $this;
-    }
-
     public function getMaxHealth(): int
     {
         return $this->maxHealth;
-    }
-
-    public function setMaxHealth(int $maxHealth): self
-    {
-        $this->maxHealth = $maxHealth;
-
-        return $this;
     }
 
     public function getDefense(): int
@@ -112,42 +88,69 @@ class Monster
         return $this->defense;
     }
 
-    public function setDefense(int $defense): self
-    {
-        $this->defense = $defense;
-
-        return $this;
-    }
-
     /**
-     * @return Collection<int, Effect>
+     * @return Effect[]
      */
-    public function getEffects(): Collection
+    public function getEffects(): array
     {
-        return $this->effects;
+        return $this->effects->toArray();
     }
 
-    public function addEffect(Effect $effect): self
+    public function isAlive(): bool
+    {
+        return $this->currentHealth > 0;
+    }
+
+    public function isDead(): bool
+    {
+        return $this->currentHealth === 0;
+    }
+
+    public function applyDamage(int $amount): void
+    {
+        if ($amount < 0) {
+            throw new InvalidArgumentException('Damage amount cannot be negative.');
+        }
+
+        $this->currentHealth = max(0, $this->currentHealth - $amount);
+    }
+
+    public function heal(int $amount): void
+    {
+        if ($amount < 0) {
+            throw new InvalidArgumentException('Healing amount cannot be negative.');
+        }
+
+        $this->currentHealth = min($this->maxHealth, $this->currentHealth + $amount);
+    }
+
+    public function addEffect(Effect $effect): void
     {
         if (!$this->effects->contains($effect)) {
             $this->effects->add($effect);
         }
+    }
 
-        return $this;
+    public function removeEffect(Effect $effect): void
+    {
+        $this->effects->removeElement($effect);
+    }
+
+    public function clearEffects(): void
+    {
+        $this->effects->clear();
     }
 
     /**
-     * @param Collection<int, Effect> $effects
+     * @param iterable<Effect> $effects
      */
-    public function setEffects(Collection $effects): void
+    public function replaceEffects(iterable $effects): void
     {
-        $this->effects = $effects;
-    }
-
-    public function removeEffect(Effect $effect): self
-    {
-        $this->effects->removeElement($effect);
-
-        return $this;
+        $this->effects->clear();
+        foreach ($effects as $effect) {
+            if (!$this->effects->contains($effect)) {
+                $this->effects->add($effect);
+            }
+        }
     }
 }

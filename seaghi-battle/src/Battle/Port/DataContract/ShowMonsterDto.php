@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace App\Battle\Port\In\DataContract;
+namespace App\Battle\Port\DataContract;
 
 use Symfony\Component\Uid\Uuid;
 
 /**
- * The result of a hit monster.
- *
- * @see \App\Battle\Port\In\HitMonsterPort
+ * Describe a monster.
  */
-readonly class HitMonsterDto
+readonly class ShowMonsterDto
 {
     /**
-     * @param string[] $effects
+     * @param ShowEffectDto[] $effects
      */
     public function __construct(
         public Uuid $id,
+        public string $name,
         public int $currentHealth,
-        public int $healthDiff,
+        public int $maxHealth,
+        public int $defense,
         public array $effects,
     ) {
     }

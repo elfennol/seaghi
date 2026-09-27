@@ -6,12 +6,11 @@ namespace App\Tests\Battle\Application\UseCase;
 
 use App\Battle\Application\Component\ComputeHealing;
 use App\Battle\Application\Component\Dice\RollDice;
-use App\Battle\Application\Component\ProcessHealth;
-use App\Battle\Entity\Monster;
 use App\Battle\Application\UseCase\HealMonster;
-use App\Battle\Port\Out\FindEntityPort;
-use App\Battle\Port\Out\PersistEntityPort;
+use App\Battle\Entity\Monster;
+use App\Battle\Port\Out\MonsterRepositoryPort;
 use App\Battle\Port\Out\PickRandomIntPort;
+use App\Battle\Port\Out\TransactionPort;
 use App\Tests\Battle\Application\EntityIdSetterTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -22,12 +21,25 @@ class HealMonsterTest extends TestCase
     use EntityIdSetterTrait;
 
     private HealMonster $healMonster;
-    private FindEntityPort $findEntity;
-    private PersistEntityPort $persistEntity;
+    private MonsterRepositoryPort $monsterRepository;
     private PickRandomIntPort $pickRandomInt;
     private ComputeHealing $computeHeal;
-    private ProcessHealth $processHealth;
+    private TransactionPort $transaction;
 
+    protected function setUp(): void
+    {
+        $this->pickRandomInt = $this->createStub(PickRandomIntPort::class);
+        $this->monsterRepository = $this->createStub(MonsterRepositoryPort::class);
+        $this->computeHeal = new ComputeHealing(new RollDice($this->pickRandomInt));
+        $this->transaction = $this->createStub(TransactionPort::class);
+        $this->transaction->method('run')->willReturnCallback(static fn (callable $operation): mixed => $operation());
+
+        $this->healMonster = new HealMonster(
+            $this->monsterRepository,
+            $this->transaction,
+            $this->computeHeal,
+        );
+    }
 
     /**
      * Given a Monster
@@ -40,15 +52,10 @@ class HealMonsterTest extends TestCase
     public function testHeal(int $expectedHealth, int $providedRandomInt): void
     {
         $this->pickRandomInt->method('pickRandomInt')->willReturn($providedRandomInt);
-        $monster = new Monster();
-        $monster->setFirstName('my_first_name');
-        $monster->setLastName('my_last_name');
-        $monster->setMaxHealth(20);
-        $monster->setCurrentHealth(10);
-        $monster->setDefense(10);
+        $monster = new Monster('my_first_name', 'my_last_name', 20, 10, 10);
         $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
-        $this->findEntity->method('find')
+        $this->monsterRepository->method('get')
             ->willReturn($monster);
 
         $this::assertEquals($expectedHealth, $this->healMonster->heal(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
@@ -61,24 +68,7 @@ class HealMonsterTest extends TestCase
     {
         return [
             [16, 2],
-            [20, 7]
+            [20, 7],
         ];
-    }
-
-    protected function setUp(): void
-    {
-        $this->pickRandomInt = $this->createStub(PickRandomIntPort::class);
-
-        $this->findEntity = $this->createStub(FindEntityPort::class);
-        $this->persistEntity = $this->createStub(PersistEntityPort::class);
-        $this->computeHeal = new ComputeHealing(new RollDice($this->pickRandomInt));
-        $this->processHealth = new ProcessHealth();
-
-        $this->healMonster = new HealMonster(
-            $this->findEntity,
-            $this->persistEntity,
-            $this->computeHeal,
-            $this->processHealth,
-        );
     }
 }

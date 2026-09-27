@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Battle\Port\In\DataContract;
+namespace App\Battle\Port\DataContract;
 
 use Symfony\Component\Uid\Uuid;
 
 /**
- * An item of the result of the monster list.
- *
- * @see \App\Battle\Port\In\ListMonsterPort
+ * Describe a monster in the monster list.
  */
 readonly class ListMonsterDto
 {

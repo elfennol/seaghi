@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Battle\Port\In\DataContract;
+namespace App\Battle\Port\DataContract;
 
 use Symfony\Component\Uid\Uuid;
 
 /**
- * The result of a healed monster.
- *
- * @see \App\Battle\Port\In\HealMonsterPort
+ * The result of a heal monster.
  */
 readonly class HealMonsterDto
 {

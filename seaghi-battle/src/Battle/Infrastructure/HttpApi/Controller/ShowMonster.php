@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace App\Battle\Infrastructure\HttpApi\Controller;
 
-use App\Battle\Port\In\DataContract\ShowMonsterDto;
-use App\Battle\Port\In\ShowMonsterPort;
+use App\Battle\Application\UseCase\ShowMonster as ShowMonsterUseCase;
+use App\Battle\Port\DataContract\ShowMonsterDto;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Uid\Uuid;
 
 readonly class ShowMonster
 {
     public function __construct(
-        private ShowMonsterPort $showMonster,
+        private ShowMonsterUseCase $showMonster,
     ) {
     }
 
-    #[Route('/monster/{monsterId}/show', methods: ['GET'])]
+    #[Route('/monster/{monsterId}', methods: ['GET'])]
     public function __invoke(Uuid $monsterId): ShowMonsterDto
     {
         return $this->showMonster->show($monsterId);

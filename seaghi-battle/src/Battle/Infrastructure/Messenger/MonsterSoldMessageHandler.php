@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Battle\Infrastructure\Messenger;
 
-use App\Battle\Port\In\SpawnMonsterPort;
+use App\Battle\Application\UseCase\SpawnMonster;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -17,7 +17,7 @@ readonly class MonsterSoldMessageHandler
 {
     public function __construct(
         private MessageValidatorInterface $validator,
-        private SpawnMonsterPort $spawnMonster,
+        private SpawnMonster $spawnMonster,
         private LoggerInterface $logger,
     ) {
     }
@@ -38,7 +38,6 @@ readonly class MonsterSoldMessageHandler
             $message->categoryCode,
             $message->level,
         );
-
 
         $this->logger->debug('Monster created', [
             'id' => $monster->id,

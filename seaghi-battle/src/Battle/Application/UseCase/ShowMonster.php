@@ -4,26 +4,21 @@ declare(strict_types=1);
 
 namespace App\Battle\Application\UseCase;
 
-use App\Battle\Application\Component\FormatName;
-use App\Battle\Port\In\DataContract\ShowEffectDto;
-use App\Battle\Port\In\DataContract\ShowMonsterDto;
-use App\Battle\Entity\Monster;
-use App\Battle\Port\In\ShowMonsterPort;
-use App\Battle\Port\Out\FindEntityPort;
+use App\Battle\Port\DataContract\ShowEffectDto;
+use App\Battle\Port\DataContract\ShowMonsterDto;
+use App\Battle\Port\Out\MonsterRepositoryPort;
 use Symfony\Component\Uid\Uuid;
 
-readonly class ShowMonster implements ShowMonsterPort
+readonly class ShowMonster
 {
     public function __construct(
-        private FindEntityPort $findEntity,
-        private FormatName $formatName,
+        private MonsterRepositoryPort $monsterRepository,
     ) {
     }
 
     public function show(Uuid $monsterId): ShowMonsterDto
     {
-        /** @var Monster $monster */
-        $monster = $this->findEntity->find(Monster::class, $monsterId);
+        $monster = $this->monsterRepository->get($monsterId);
         assert($monster->getId() !== null);
 
         $effects = [];
@@ -33,7 +28,7 @@ readonly class ShowMonster implements ShowMonsterPort
 
         return new ShowMonsterDto(
             $monster->getId(),
-            $this->formatName->getFullName($monster),
+            $monster->getFullName(),
             $monster->getCurrentHealth(),
             $monster->getMaxHealth(),
             $monster->getDefense(),

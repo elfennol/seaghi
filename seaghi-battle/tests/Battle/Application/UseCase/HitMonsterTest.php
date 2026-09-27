@@ -7,14 +7,13 @@ namespace App\Tests\Battle\Application\UseCase;
 use App\Battle\Application\Component\ComputeDamageSeverity;
 use App\Battle\Application\Component\ComputeHitSeverity;
 use App\Battle\Application\Component\Dice\RollDice;
-use App\Battle\Application\Component\ProcessHealth;
+use App\Battle\Application\UseCase\HitMonster;
 use App\Battle\Entity\Effect;
 use App\Battle\Entity\Monster;
-use App\Battle\Application\UseCase\HitMonster;
-use App\Battle\Port\Out\FindAllEffectIndexedPort;
-use App\Battle\Port\Out\FindEntityPort;
-use App\Battle\Port\Out\PersistEntityPort;
+use App\Battle\Port\Out\EffectRepositoryPort;
+use App\Battle\Port\Out\MonsterRepositoryPort;
 use App\Battle\Port\Out\PickRandomIntPort;
+use App\Battle\Port\Out\TransactionPort;
 use App\Tests\Battle\Application\EntityIdSetterTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -25,13 +24,31 @@ class HitMonsterTest extends TestCase
     use EntityIdSetterTrait;
 
     private HitMonster $hitMonster;
-    private FindEntityPort $findEntity;
-    private FindAllEffectIndexedPort $findAllEffectIndexed;
-    private PersistEntityPort $persistEntity;
+    private MonsterRepositoryPort $monsterRepository;
+    private EffectRepositoryPort $effectRepository;
+    private TransactionPort $transaction;
     private ComputeHitSeverity $computeHitSeverity;
     private ComputeDamageSeverity $computeDmgSeverity;
-    private ProcessHealth $processHealth;
     private PickRandomIntPort $pickRandomInt;
+
+    protected function setUp(): void
+    {
+        $this->pickRandomInt = $this->createStub(PickRandomIntPort::class);
+        $this->monsterRepository = $this->createStub(MonsterRepositoryPort::class);
+        $this->effectRepository = $this->createStub(EffectRepositoryPort::class);
+        $this->transaction = $this->createStub(TransactionPort::class);
+        $this->transaction->method('run')->willReturnCallback(static fn (callable $operation): mixed => $operation());
+        $this->computeHitSeverity = new ComputeHitSeverity(new RollDice($this->pickRandomInt));
+        $this->computeDmgSeverity = new ComputeDamageSeverity();
+
+        $this->hitMonster = new HitMonster(
+            $this->monsterRepository,
+            $this->effectRepository,
+            $this->transaction,
+            $this->computeHitSeverity,
+            $this->computeDmgSeverity,
+        );
+    }
 
     /**
      * Given a Monster
@@ -44,7 +61,7 @@ class HitMonsterTest extends TestCase
     public function testHitBelowDefense(int $expectedHealth, int $providedRandomInt, int $defense): void
     {
         $this->pickRandomInt->method('pickRandomInt')->willReturn($providedRandomInt);
-        $this->findEntity->method('find')
+        $this->monsterRepository->method('get')
             ->willReturn($this->buildMonster($defense));
 
         $this::assertEquals($expectedHealth, $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
@@ -61,7 +78,7 @@ class HitMonsterTest extends TestCase
     public function testHitAboveDefense(int $expectedHealth, int $providedRandomInt, int $defense): void
     {
         $this->pickRandomInt->method('pickRandomInt')->willReturn($providedRandomInt);
-        $this->findEntity->method('find')
+        $this->monsterRepository->method('get')
             ->willReturn($this->buildMonster($defense));
 
         $this::assertEquals($expectedHealth, $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
@@ -75,8 +92,14 @@ class HitMonsterTest extends TestCase
     public function testHitCritical(): void
     {
         $this->pickRandomInt->method('pickRandomInt')->willReturn(20);
-        $this->findEntity->method('find')
+        $this->monsterRepository->method('get')
             ->willReturn($this->buildMonster(10, 100, 50));
+
+        $seriousInjuryEffect = new Effect();
+        $seriousInjuryEffect->setCode(Effect::CODE_SERIOUS_INJURY);
+        $this->effectRepository->method('findAllIndexed')->willReturn([
+            Effect::CODE_SERIOUS_INJURY => $seriousInjuryEffect,
+        ]);
 
         $hitResult = $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
         $this::assertEquals(10, $hitResult->currentHealth);
@@ -91,8 +114,14 @@ class HitMonsterTest extends TestCase
     public function testHitBadass(): void
     {
         $this->pickRandomInt->method('pickRandomInt')->willReturn(2);
-        $this->findEntity->method('find')
+        $this->monsterRepository->method('get')
             ->willReturn($this->buildMonster(10));
+
+        $badassEffect = new Effect();
+        $badassEffect->setCode(Effect::CODE_BADASS);
+        $this->effectRepository->method('findAllIndexed')->willReturn([
+            Effect::CODE_BADASS => $badassEffect,
+        ]);
 
         $hitResult = $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
         $this::assertContains(Effect::CODE_BADASS, $hitResult->effects);
@@ -120,35 +149,9 @@ class HitMonsterTest extends TestCase
         ];
     }
 
-    protected function setUp(): void
-    {
-        $this->pickRandomInt = $this->createStub(PickRandomIntPort::class);
-
-        $this->findEntity = $this->createStub(FindEntityPort::class);
-        $this->findAllEffectIndexed = $this->createStub(FindAllEffectIndexedPort::class);
-        $this->persistEntity = $this->createStub(PersistEntityPort::class);
-        $this->computeHitSeverity = new ComputeHitSeverity(new RollDice($this->pickRandomInt));
-        $this->computeDmgSeverity = new ComputeDamageSeverity();
-        $this->processHealth = new ProcessHealth();
-
-        $this->hitMonster = new HitMonster(
-            $this->findEntity,
-            $this->findAllEffectIndexed,
-            $this->persistEntity,
-            $this->computeHitSeverity,
-            $this->computeDmgSeverity,
-            $this->processHealth,
-        );
-    }
-
     private function buildMonster(int $defense, int $maxHealth = 20, int $currentHealth = 10): Monster
     {
-        $monster = new Monster();
-        $monster->setFirstName('my_first_name');
-        $monster->setLastName('my_last_name');
-        $monster->setMaxHealth($maxHealth);
-        $monster->setCurrentHealth($currentHealth);
-        $monster->setDefense($defense);
+        $monster = new Monster('my_first_name', 'my_last_name', $maxHealth, $defense, $currentHealth);
         $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         return $monster;

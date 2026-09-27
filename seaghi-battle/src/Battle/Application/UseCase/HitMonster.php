@@ -6,64 +6,51 @@ namespace App\Battle\Application\UseCase;
 
 use App\Battle\Application\Component\ComputeDamageSeverity;
 use App\Battle\Application\Component\ComputeHitSeverity;
-use App\Battle\Application\Component\ProcessHealth;
-use App\Battle\Port\In\DataContract\HitMonsterDto;
-use App\Battle\Entity\Monster;
-use App\Battle\Port\In\HitMonsterPort;
-use App\Battle\Port\Out\FindAllEffectIndexedPort;
-use App\Battle\Port\Out\FindEntityPort;
-use App\Battle\Port\Out\PersistEntityPort;
-use Doctrine\Common\Collections\ArrayCollection;
+use App\Battle\Port\DataContract\HitMonsterDto;
+use App\Battle\Port\Out\EffectRepositoryPort;
+use App\Battle\Port\Out\MonsterRepositoryPort;
+use App\Battle\Port\Out\TransactionPort;
 use Symfony\Component\Uid\Uuid;
 
-/**
- * Hit a monster::
- *   - Roll a D20
- *   - If greater than the monster's defense, then subtract the result from the monster's health
- *   - If 20, then the monster cannot dodge and subtract twice the result from the monster's health
- *
- * Effects:
- *   - Critical injury: when the result is 20
- *   - Badass: when the monster dodges the attack (damage = 0)
- */
-readonly class HitMonster implements HitMonsterPort
+readonly class HitMonster
 {
     public function __construct(
-        private FindEntityPort $findEntity,
-        private FindAllEffectIndexedPort $findAllEffectIndexed,
-        private PersistEntityPort $persistEntity,
+        private MonsterRepositoryPort $monsterRepository,
+        private EffectRepositoryPort $effectRepository,
+        private TransactionPort $transaction,
         private ComputeHitSeverity $computeHitSeverity,
         private ComputeDamageSeverity $computeDmgSeverity,
-        private ProcessHealth $processHealth,
     ) {
     }
 
     public function hit(Uuid $monsterId): HitMonsterDto
     {
-        /** @var Monster $monster */
-        $monster = $this->findEntity->find(Monster::class, $monsterId);
+        $monster = $this->monsterRepository->get($monsterId);
 
         $hitSeverity = $this->computeHitSeverity->compute();
         $damageSeverity = $this->computeDmgSeverity->compute($monster, $hitSeverity);
-        $this->processHealth->injure($monster, $damageSeverity);
 
-        $effectEntities = $this->findAllEffectIndexed->findAllIndexed();
-        $effects = new ArrayCollection();
+        $effectEntities = $this->effectRepository->findAllIndexed();
+        $appliedEffects = [];
         foreach ($damageSeverity->effects as $damageEffect) {
             if (isset($effectEntities[$damageEffect])) {
-                $effects->add($effectEntities[$damageEffect]);
+                $appliedEffects[] = $effectEntities[$damageEffect];
             }
         }
-        $monster->setEffects($effects);
 
-        $this->persistEntity->persist($monster);
+        $this->transaction->run(function () use ($monster, $damageSeverity, $appliedEffects): void {
+            $monster->applyDamage($damageSeverity->amount);
+            $monster->replaceEffects($appliedEffects);
+            $this->monsterRepository->save($monster);
+        });
+
         assert($monster->getId() !== null);
 
         return new HitMonsterDto(
             $monster->getId(),
             $monster->getCurrentHealth(),
             -$damageSeverity->amount,
-            $damageSeverity->effects
+            $damageSeverity->effects,
         );
     }
 }

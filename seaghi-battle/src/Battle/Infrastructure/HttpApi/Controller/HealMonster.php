@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Battle\Infrastructure\HttpApi\Controller;
 
-use App\Battle\Port\In\DataContract\HealMonsterDto;
-use App\Battle\Port\In\HealMonsterPort;
+use App\Battle\Application\UseCase\HealMonster as HealMonsterUseCase;
+use App\Battle\Port\DataContract\HealMonsterDto;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Uid\Uuid;
 
 readonly class HealMonster
 {
     public function __construct(
-        private HealMonsterPort $healMonster,
+        private HealMonsterUseCase $healMonster,
     ) {
     }
 

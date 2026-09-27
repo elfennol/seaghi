@@ -6,9 +6,10 @@ namespace App\Tests\Battle\Application\UseCase;
 
 use App\Battle\Application\Component\Difficulty\DifficultyNormalStrategy;
 use App\Battle\Application\Enum\Category;
-use App\Battle\Entity\Monster;
 use App\Battle\Application\UseCase\SpawnMonster;
-use App\Battle\Port\Out\PersistEntityPort;
+use App\Battle\Entity\Monster;
+use App\Battle\Port\Out\MonsterRepositoryPort;
+use App\Battle\Port\Out\TransactionPort;
 use App\Tests\Battle\Application\EntityIdSetterTrait;
 use Exception;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -20,8 +21,23 @@ class SpawnMonsterTest extends TestCase
     use EntityIdSetterTrait;
 
     private SpawnMonster $spawnMonster;
-    private PersistEntityPort $persistEntity;
+    private MonsterRepositoryPort $monsterRepository;
     private DifficultyNormalStrategy $difficultyStrategy;
+    private TransactionPort $transaction;
+
+    protected function setUp(): void
+    {
+        $this->monsterRepository = $this->createStub(MonsterRepositoryPort::class);
+        $this->difficultyStrategy = new DifficultyNormalStrategy();
+        $this->transaction = $this->createStub(TransactionPort::class);
+        $this->transaction->method('run')->willReturnCallback(static fn (callable $operation): mixed => $operation());
+
+        $this->spawnMonster = new SpawnMonster(
+            $this->monsterRepository,
+            $this->difficultyStrategy,
+            $this->transaction,
+        );
+    }
 
     /**
      * When receiving a sold monster message
@@ -32,7 +48,7 @@ class SpawnMonsterTest extends TestCase
     #[DataProvider('spawnProvider')]
     public function testSpawn(int $expectedDefense, int $expectedHealth, Category $category, int $level): void
     {
-        $this->persistEntity->method('persist')
+        $this->monsterRepository->method('save')
             ->willReturnCallback(function (Monster $monster): void {
                 $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
             });
@@ -57,7 +73,7 @@ class SpawnMonsterTest extends TestCase
     {
         $this->expectException(Exception::class);
 
-        $this->persistEntity->method('persist')
+        $this->monsterRepository->method('save')
             ->willReturnCallback(function (Monster $monster): void {
                 $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
             });
@@ -81,16 +97,5 @@ class SpawnMonsterTest extends TestCase
             [10, 120, Category::LOLCAT, 4],
             [15, 200, Category::CARIBOU_AVENGER, 5],
         ];
-    }
-
-    protected function setUp(): void
-    {
-        $this->persistEntity = $this->createStub(PersistEntityPort::class);
-        $this->difficultyStrategy = new DifficultyNormalStrategy();
-
-        $this->spawnMonster = new SpawnMonster(
-            $this->persistEntity,
-            $this->difficultyStrategy,
-        );
     }
 }
