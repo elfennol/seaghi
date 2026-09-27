@@ -4,62 +4,49 @@ declare(strict_types=1);
 
 namespace App\Shop\Application\UseCase;
 
-use App\Shop\Application\Component\CheckMonsterStatus;
 use App\Shop\Application\Enum\SaleRejectionReason;
-use App\Shop\Port\In\DataContract\BuyItemDto;
+use App\Shop\Port\DataContract\BuyItemDto;
 use App\Shop\Port\Out\MessageContract\MonsterSoldMessage;
-use App\Shop\Entity\Monster;
-use App\Shop\Port\In\BuyItemPort;
-use App\Shop\Port\Out\FindEntityPort;
-use App\Shop\Port\Out\PersistEntityPort;
+use App\Shop\Port\Out\MonsterRepositoryPort;
 use App\Shop\Port\Out\SendMessagePort;
+use App\Shop\Port\Out\TransactionPort;
 use App\Shop\Port\Out\WithdrawFromAccountPort;
 use Symfony\Component\Uid\Uuid;
 
-readonly class BuyItem implements BuyItemPort
+readonly class BuyItem
 {
     public function __construct(
-        private FindEntityPort $findEntity,
-        private PersistEntityPort $persistEntity,
+        private MonsterRepositoryPort $monsterRepository,
         private WithdrawFromAccountPort $withdrawFromAccount,
         private SendMessagePort $sendMessage,
-        private CheckMonsterStatus $checkMonsterStatus
+        private TransactionPort $transaction,
     ) {
     }
 
     public function buy(Uuid $monsterId): BuyItemDto
     {
-        /** @var Monster $monsterEntity */
-        $monsterEntity = $this->findEntity->find(Monster::class, $monsterId);
-        assert($monsterEntity->getId() !== null);
+        $monster = $this->monsterRepository->get($monsterId);
 
-        $canBuy = true;
-        $rejectionReason = null;
-        if (false === $this->checkMonsterStatus->isReadyToFight($monsterEntity)) {
-            $canBuy = false;
-            $rejectionReason = SaleRejectionReason::NOT_READY_TO_FIGHT;
+        if (!$monster->isReadyToFight()) {
+            return new BuyItemDto($monsterId, false, SaleRejectionReason::NOT_READY_TO_FIGHT->name);
         }
+
         if (!$this->withdrawFromAccount->withdraw()) {
-            $canBuy = false;
-            $rejectionReason = SaleRejectionReason::DIFFICULT_END_OF_MONTH;
+            return new BuyItemDto($monsterId, false, SaleRejectionReason::DIFFICULT_END_OF_MONTH->name);
         }
 
-        if (true === $canBuy) {
-            $monsterEntity->setAvailable(false);
-            $this->persistEntity->persist($monsterEntity);
-            assert($monsterEntity->getId() !== null);
-            $this->sendMessage->send(new MonsterSoldMessage(
-                $monsterEntity->getFirstName(),
-                $monsterEntity->getLastName(),
-                $monsterEntity->getCategory()->getCode(),
-                $monsterEntity->getLevel(),
-            ));
-        }
+        $this->transaction->run(function () use ($monster): void {
+            $monster->markAsSold();
+            $this->monsterRepository->save($monster);
+        });
 
-        return new BuyItemDto(
-            $monsterEntity->getId(),
-            $canBuy,
-            $rejectionReason->name ?? null
-        );
+        $this->sendMessage->send(new MonsterSoldMessage(
+            $monster->getFirstName(),
+            $monster->getLastName(),
+            $monster->getCategory()->getCode(),
+            $monster->getLevel(),
+        ));
+
+        return new BuyItemDto($monsterId, true, null);
     }
 }

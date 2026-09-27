@@ -12,10 +12,10 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * Set of queries to search a monster.
  */
-class SearchMonsterQuery implements SearchMonsterPort
+readonly class SearchMonsterQuery implements SearchMonsterPort
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 

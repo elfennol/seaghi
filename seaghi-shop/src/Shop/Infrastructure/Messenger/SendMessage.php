@@ -11,10 +11,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * Generic class to send a message.
  */
-class SendMessage implements SendMessagePort
+readonly class SendMessage implements SendMessagePort
 {
     public function __construct(
-        private readonly MessageBusInterface $messageBus
+        private MessageBusInterface $messageBus,
     ) {
     }
 

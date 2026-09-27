@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shop\Application\UseCase;
 
-use App\Shop\Port\In\DataContract\SearchMonsterDto;
-use App\Shop\Port\In\ListItemPort;
+use App\Shop\Port\DataContract\SearchMonsterDto;
 use App\Shop\Port\Out\SearchMonsterPort;
 use Exception;
 
@@ -16,13 +15,16 @@ use Exception;
  * The minimum level is 1. If not given, then it is set to 1.
  * The maximum level is 10. If level > 10 is given, then it is set to 10.
  */
-readonly class ListItem implements ListItemPort
+readonly class ListItem
 {
     public function __construct(
         private SearchMonsterPort $searchMonster,
     ) {
     }
 
+    /**
+     * @return SearchMonsterDto[]
+     */
     public function list(int $levelMin, int $levelMax): iterable
     {
         if ($levelMin < 1 || $levelMin > 10 || $levelMax < 1 || $levelMax > 10) {

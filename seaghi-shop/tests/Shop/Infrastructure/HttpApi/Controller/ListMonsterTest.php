@@ -4,29 +4,29 @@ declare(strict_types=1);
 
 namespace App\Tests\Shop\Infrastructure\HttpApi\Controller;
 
+use App\Shop\Application\UseCase\ListItem;
 use App\Shop\Infrastructure\HttpApi\Controller\ListMonster;
 use App\Shop\Infrastructure\HttpApi\Dto\MonsterListRequest;
-use App\Shop\Port\In\DataContract\SearchMonsterDto;
-use App\Shop\Port\In\ListItemPort;
+use App\Shop\Port\DataContract\SearchMonsterDto;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
 class ListMonsterTest extends TestCase
 {
-    private ListItemPort&MockObject $listItemPort;
+    private ListItem&MockObject $listItem;
     private ListMonster $controller;
 
     protected function setUp(): void
     {
-        $this->listItemPort = $this->createMock(ListItemPort::class);
-        $this->controller = new ListMonster($this->listItemPort);
+        $this->listItem = $this->createMock(ListItem::class);
+        $this->controller = new ListMonster($this->listItem);
     }
 
     /**
      * Given a valid monster list request
      * When the controller is invoked
-     * Then it delegates to the port with given levels and returns the monster list
+     * Then it delegates to the use case with given levels and returns the monster list
      */
     public function testInvokeReturnsMonsters(): void
     {
@@ -44,7 +44,7 @@ class ListMonsterTest extends TestCase
             ),
         ];
 
-        $this->listItemPort
+        $this->listItem
             ->expects($this->once())
             ->method('list')
             ->with(1, 5)
@@ -64,7 +64,7 @@ class ListMonsterTest extends TestCase
     {
         $request = new MonsterListRequest(levelMin: 50, levelMax: 100);
 
-        $this->listItemPort
+        $this->listItem
             ->expects($this->once())
             ->method('list')
             ->with(50, 100)
@@ -78,13 +78,13 @@ class ListMonsterTest extends TestCase
     /**
      * Given a monster list request with identical min and max levels
      * When the controller is invoked
-     * Then it passes the exact levels to the port
+     * Then it passes the exact levels to the use case
      */
     public function testInvokePassesLevelBounds(): void
     {
         $request = new MonsterListRequest(levelMin: 10, levelMax: 10);
 
-        $this->listItemPort
+        $this->listItem
             ->expects($this->once())
             ->method('list')
             ->with(10, 10)

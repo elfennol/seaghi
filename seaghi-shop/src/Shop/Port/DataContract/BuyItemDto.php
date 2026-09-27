@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Shop\Port\In\DataContract;
+namespace App\Shop\Port\DataContract;
 
 use Symfony\Component\Uid\Uuid;
 
 /**
  * Data given when you buy a monster.
- *
- * @see \App\Shop\Port\In\BuyItemPort
  */
 readonly class BuyItemDto
 {

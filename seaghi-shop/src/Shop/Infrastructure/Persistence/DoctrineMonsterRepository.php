@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Shop\Infrastructure\Persistence;
+
+use App\Shop\Entity\Monster;
+use App\Shop\Port\Out\Exception\MonsterNotFoundException;
+use App\Shop\Port\Out\MonsterRepositoryPort;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Uid\Uuid;
+
+/**
+ * Doctrine implementation of MonsterRepositoryPort.
+ */
+readonly class DoctrineMonsterRepository implements MonsterRepositoryPort
+{
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+    ) {
+    }
+
+    public function get(Uuid $id): Monster
+    {
+        $monster = $this->find($id);
+        if ($monster === null) {
+            throw MonsterNotFoundException::forId($id);
+        }
+
+        return $monster;
+    }
+
+    public function find(Uuid $id): ?Monster
+    {
+        return $this->entityManager->find(Monster::class, $id);
+    }
+
+    public function save(Monster $monster): void
+    {
+        $this->entityManager->persist($monster);
+    }
+}

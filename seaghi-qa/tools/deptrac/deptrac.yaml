@@ -84,6 +84,7 @@ deptrac:
       - vendor
     seaghi_shop_infrastructure:
       - seaghi_shop_port
+      - seaghi_shop_application
       - seaghi_shop_entity
       - vendor
     seaghi_shop_port:

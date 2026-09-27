@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shop\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use LogicException;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -14,10 +15,9 @@ use Symfony\Component\Uid\Uuid;
  * It drools all over the place, and it makes weird grunts.
  * You can have one if you want. A monster just for you!
  * This monster will be available on the battlefield.
- *
- **/
+ */
 #[ORM\Entity]
-#[ORM\Table(name: "monster")]
+#[ORM\Table(name: 'monster')]
 class Monster
 {
     #[ORM\Id]
@@ -26,27 +26,26 @@ class Monster
     #[ORM\CustomIdGenerator('doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private Category $category;
-
-    #[ORM\Column]
-    private int $level;
-
-    #[ORM\Column]
-    private int $price;
-
-    #[ORM\Column(length: 255)]
-    private string $firstName;
-
-    #[ORM\Column(length: 255)]
-    private string $lastName;
-
-    #[ORM\Column(options: ["default" => true])]
+    #[ORM\Column(options: ['default' => true])]
     private bool $available = true;
 
-    #[ORM\Column(options: ["default" => false])]
+    #[ORM\Column(options: ['default' => false])]
     private bool $sick = false;
+
+    public function __construct(
+        #[ORM\ManyToOne]
+        #[ORM\JoinColumn(nullable: false)]
+        private Category $category,
+        #[ORM\Column]
+        private int $level,
+        #[ORM\Column]
+        private int $price,
+        #[ORM\Column(length: 255)]
+        private string $firstName,
+        #[ORM\Column(length: 255)]
+        private string $lastName,
+    ) {
+    }
 
     public function getId(): ?Uuid
     {
@@ -58,23 +57,9 @@ class Monster
         return $this->category;
     }
 
-    public function setCategory(Category $category): self
-    {
-        $this->category = $category;
-
-        return $this;
-    }
-
     public function getLevel(): int
     {
         return $this->level;
-    }
-
-    public function setLevel(int $level): self
-    {
-        $this->level = $level;
-
-        return $this;
     }
 
     public function getPrice(): int
@@ -82,23 +67,9 @@ class Monster
         return $this->price;
     }
 
-    public function setPrice(int $price): self
-    {
-        $this->price = $price;
-
-        return $this;
-    }
-
     public function getFirstName(): string
     {
         return $this->firstName;
-    }
-
-    public function setFirstName(string $firstName): self
-    {
-        $this->firstName = $firstName;
-
-        return $this;
     }
 
     public function getLastName(): string
@@ -106,23 +77,9 @@ class Monster
         return $this->lastName;
     }
 
-    public function setLastName(string $lastName): self
-    {
-        $this->lastName = $lastName;
-
-        return $this;
-    }
-
     public function isAvailable(): bool
     {
         return $this->available;
-    }
-
-    public function setAvailable(bool $available): self
-    {
-        $this->available = $available;
-
-        return $this;
     }
 
     public function isSick(): bool
@@ -130,10 +87,37 @@ class Monster
         return $this->sick;
     }
 
-    public function setSick(bool $sick): self
+    public function isReadyToFight(): bool
     {
-        $this->sick = $sick;
+        return $this->available && !$this->sick && $this->level <= 10;
+    }
 
-        return $this;
+    public function markAsSold(): void
+    {
+        if (!$this->isReadyToFight()) {
+            throw new LogicException('Cannot sell a monster that is not ready to fight.');
+        }
+
+        $this->available = false;
+    }
+
+    public function levelUp(): void
+    {
+        $this->level++;
+    }
+
+    public function heal(): void
+    {
+        $this->sick = false;
+    }
+
+    public function makeSick(): void
+    {
+        $this->sick = true;
+    }
+
+    public function makeUnavailable(): void
+    {
+        $this->available = false;
     }
 }

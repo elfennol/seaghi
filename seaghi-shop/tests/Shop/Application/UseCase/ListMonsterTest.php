@@ -7,7 +7,7 @@ namespace App\Tests\Shop\Application\UseCase;
 use App\Shop\Application\UseCase\ListItem;
 use App\Shop\Entity\Category;
 use App\Shop\Entity\Monster;
-use App\Shop\Port\In\DataContract\SearchMonsterDto;
+use App\Shop\Port\DataContract\SearchMonsterDto;
 use App\Shop\Port\Out\SearchMonsterPort;
 use App\Tests\Shop\Application\EntityIdSetterTrait;
 use Exception;
@@ -99,14 +99,19 @@ class ListMonsterTest extends TestCase
         $category = new Category();
         $category->setCode($categoryCode);
 
-        $monster = new Monster();
-        $monster->setCategory($category);
-        $monster->setLevel($level);
-        $monster->setPrice($price);
-        $monster->setFirstName($firstName);
-        $monster->setLastName($lastName);
-        $monster->setAvailable($available);
-        $monster->setSick($sick);
+        $monster = new Monster(
+            $category,
+            $level,
+            $price,
+            $firstName,
+            $lastName,
+        );
+        if (!$available) {
+            $monster->makeUnavailable();
+        }
+        if ($sick) {
+            $monster->makeSick();
+        }
         $this->setEntityId($monster, $monsterId);
 
         return $monster;

@@ -38,15 +38,11 @@ services:
 
 when@prod: &prod
     services:
-        # Port IN
-        App\Shop\Port\In\BuyItemPort: '@App\Shop\Application\UseCase\BuyItem'
-        App\Shop\Port\In\ListItemPort: '@App\Shop\Application\UseCase\ListItem'
-
         # Port OUT
-        App\Shop\Port\Out\FindEntityPort: '@App\Shop\Infrastructure\Persistence\CrudQuery'
-        App\Shop\Port\Out\PersistEntityPort: '@App\Shop\Infrastructure\Persistence\CrudQuery'
+        App\Shop\Port\Out\MonsterRepositoryPort: '@App\Shop\Infrastructure\Persistence\DoctrineMonsterRepository'
         App\Shop\Port\Out\SearchMonsterPort: '@App\Shop\Infrastructure\Persistence\SearchMonsterQuery'
         App\Shop\Port\Out\SendMessagePort: '@App\Shop\Infrastructure\Messenger\SendMessage'
+        App\Shop\Port\Out\TransactionPort: '@App\Shop\Infrastructure\Persistence\DoctrineTransaction'
         App\Shop\Port\Out\WithdrawFromAccountPort: '@App\Shop\Infrastructure\Client\AccountClient'
 
 when@dev:
