@@ -39,22 +39,21 @@ dot -T svg -o overview.svg overview.gv
 
 ```
 ├── Application
-│   ├── Component           # Cross-cutting policies and domain services
-|   ├── Enum                # Domain enumerations
+│   ├── Enum                # Domain enumerations
+│   ├── Rule                # Business rules and calculations
 │   └── UseCase             # Functional use cases (concrete, directly called by controllers)
-├── Entity                  # Rich Domain / ORM Entities (Invariants & State transitions)
+├── Entity                  # Rich Domain / ORM Entities & Value Objects (Invariants & State transitions)
 ├── Infrastructure          # Technical delivery & adapters
 │   ├── Client              # External services call
-│   ├── EventListener       # Event listeners 
+│   ├── EventListener       # Event listeners & HTTP exception translation
 │   ├── HttpApi             # Internal API
 │   │   ├── Controller
 │   │   └── Dto
-│   ├── Messenger           # Message manager
-│   └── Persistence         # Persistence (SQL, ...): repo adapters
+│   ├── Messenger           # Message manager & handlers
+│   └── Persistence         # Persistence (SQL, ...): repo adapters, identity generator & query projections
 └── Port                    # Outbound interfaces & Cross-layer contracts
-    ├── DataContract        # Cross-layer DTOs (Use Case inputs & outputs)
-    ├── MessageContract     # Asynchronous message data holders
-    └── Out                 # Outbound interfaces (Repositories, Clients, Messenger, Transactions)
+    ├── DataContract        # Cross-layer DTOs (Use Case inputs/outputs, read projections, async messages)
+    └── Out                 # Outbound interfaces (Repositories, Clients, Identity, Messenger, Transactions)
 ```
 
 ## What is Infrastructure?
@@ -67,7 +66,7 @@ The set of the use cases without being concerned with technical resources.
 
 I have at least two folders in Application:
 - UseCase: objects with only one public method representing a business use case.
-- Component: cross-cutting business rules, policies, or domain services used by use cases when a rule spans multiple entities or requires external collaborators. When passing data to a Component or helper, pass only the required primitives or Value Objects (following the Interface Segregation Principle), not the full ORM entity graph. This keeps components reusable and trivial to unit-test.
+- Rule: business rules and calculations that do not belong directly in an entity (e.g. calculation algorithms, strategies, or rules requiring external collaborators). When passing data to a Rule or helper, pass only the required primitives or Value Objects (following the Interface Segregation Principle), not the full ORM entity graph. This keeps rules reusable and trivial to unit-test.
 
 ## What is the Domain? (Pragmatic Domain: Combining Domain & Entity)
 
@@ -89,9 +88,9 @@ Even though entities use Doctrine mapping attributes directly, we must prevent i
 ### Preventing Entity Bloat:
 To prevent entities from growing into "God objects":
 1. **Scope to Bounded Contexts:** An entity model in `Shop` is distinct from an entity in `Battle`, even if they share or link to the same database tables.
-2. **CQRS for Reads:** Entities are strictly write models (for state changes and invariants). Display, query, and search operations bypass the entity and return read DTOs directly.
-3. **Value Objects:** Group related cohesive properties and behavior into immutable Value Objects (e.g. `Price`, `Health`).
-4. **Policy / Rule Services:** Complex multi-entity calculations or business policies that evolve frequently go into dedicated rule/policy services in Application, while intrinsic state invariants remain inside the entity.
+2. **CQRS for Reads:** Entities are strictly write models (for state changes and invariants). Display, query, and search operations bypass the entity completely: read query adapters (e.g. `SearchMonsterPort`) project SQL/DQL directly into read DTOs (`SearchMonsterDto`), without hydrating ORM entities or tracking them in the Unit of Work.
+3. **Value Objects & Invariants:** Group cohesive properties and behavior into immutable Value Objects (e.g. `Price`, `Health`) or enforce invariants directly via guard clauses in the entity constructor.
+4. **Business Rules & Calculations:** Calculation algorithms, business policies, or strategies that evolve independently or do not belong in an entity go into dedicated classes in `Application/Rule`, while intrinsic state invariants remain inside the entity.
 
 - https://www.martinfowler.com/bliki/AnemicDomainModel.html
 - https://martinfowler.com/bliki/TellDontAsk.html
@@ -105,17 +104,20 @@ Port represents the boundary between Application and Infrastructure:
 ### 1. Inbound: No 1-to-1 `Port\In` Interfaces (Pragmatic Inward Dependencies)
 We intentionally **do not create 1-to-1 interfaces for Use Cases** (no `BuyItemPort` for `BuyItem`).
 - **Clean Architecture Dependency Rule:** Outer delivery mechanisms (Controllers, CLI commands, Message Handlers) naturally depend **inward** on the Application core (`Controller -> UseCase`).
-- **KISS & Zero Boilerplate:** Business Use Cases almost never have multiple implementations in production. Dropping `Port\In` interfaces eliminates redundant single-method interfaces, saves 30% file overhead, and allows Symfony to autowire Use Cases directly with zero manual configuration in `services.yaml`.
+- **KISS & Zero Boilerplate:** Business Use Cases almost never have multiple implementations in production. Dropping `Port\In` interfaces eliminates redundant single-method interfaces and allows Symfony to autowire Use Cases directly with zero manual configuration in `services.yaml`.
 - **Testing:** Controllers can easily stub or mock concrete Use Cases in PHPUnit without requiring an interface.
 
 ### 2. Outbound (`Port/Out`): Strict Dependency Inversion
 The Application layer must never depend on external technical infrastructure (Doctrine ORM, Redis, RabbitMQ, HTTP APIs).
-- Outbound interfaces (`MonsterRepositoryPort`, `TransactionPort`, `WithdrawFromAccountPort`, `SendMessagePort`) live in `Port/Out`.
-- Infrastructure implements these interfaces in `Infrastructure/Persistence`, `Infrastructure/Client`, etc.
+- Outbound interfaces (`MonsterRepositoryPort`, `TransactionPort`, `IdentityGeneratorPort`, `WithdrawFromAccountPort`, `SendMessagePort`) live in `Port/Out`.
+- Infrastructure implements these interfaces in `Infrastructure/Persistence` (repositories, transactions, identity generator), `Infrastructure/Client`, `Infrastructure/Messenger`, etc.
 
-### 3. Contracts (`DataContract` & `MessageContract`)
-- `DataContract`: Immutable DTOs exchanged between outer layers and Use Cases (request inputs and response outputs).
-- `MessageContract`: Immutable message objects dispatched for asynchronous processing.
+### 3. DataContracts (`Port/DataContract`)
+Immutable DTOs exchanged across layer boundaries:
+- Use Case inputs and outputs (e.g. `BuyItemDto`), which also serve as the public API response contracts returned by controllers.
+- CQRS read projections (e.g. `SearchMonsterDto`).
+- Asynchronous message data holders dispatched to message brokers (e.g. `MonsterSoldMessage`).
+- We do not distinguish between `DataContract` and `MessageContract`: all are immutable data transfer objects (DTOs) without behavioral methods. `SendMessagePort::send(object $message)` accepts any message DTO directly without requiring empty marker interfaces.
 
 ## What is a (bounded) context?
 
@@ -133,29 +135,39 @@ We can communicate between contexts in many ways:
 - With messages (`symfony/messenger`)
 - ...
 
-## Data holder objects are immutable.
+## Data holder objects are immutable
 
-Data holder objects (DTO, Message, ...) are immutable to avoid side effects and to ease the debug. It is a final and valid unit of data. We know the layer that created this data object, and we know that this object is not updated during its journey to the next layer.
+Data holder objects (DTO, Message, ...) are immutable to avoid side effects and to ease debugging. It is a final and valid unit of data. We know the layer that created this data object, and we know that this object is not modified during its journey across layers.
 
-DTO should be used only for one use case. Avoid several use cases using the same DTO.
+- DTOs should be used for only one use case. Avoid sharing the same DTO across multiple use cases (to prevent coupling changes between features).
+- When used with a controller, use one DTO for one view. Do not use one DTO for multiple views. Same for message handlers.
+- All cross-layer DTOs (Use Case inputs/outputs, read projections, and asynchronous messages) live under `Port/DataContract`.
+- We avoid empty marker interfaces: `SendMessagePort::send(object $message)` handles any message DTO directly.
 
-When used with a controller, use one DTO for only one view. Do not use one DTO for several views. Same for message handlers.
+## Value Objects & Invariant Guards
 
-TODO: MessageContract?
-
-Some DTOs are shared between Application and Infrastructure. I consider an immutable data holder as a "data contract": we have access to these data, this data holder was created with valid data, and this data has not been modified since the creation of this data holder (When we sign a contract, the contract is meant to be valid and should not be changed). So I put these DTOs in Port. Folder "DataContract" for general DTO and folder "MessageContract" for the message data holders.
-
-## Value Object
-
-- Throwing an exception (or using a type like `Result<ValueObject, ValidationError>`) during validation while creating a value object is considered a standard good practice: value objects must represent valid domain concepts at all times.
+- **KISS default rule:** Invariants specific to an entity are validated directly in the entity constructor via guard clauses (`if ($price < 0) throw new InvalidArgumentException(...)`). This prevents illegal states without creating class proliferation.
+- **Value Objects when justified:** Group related properties into an immutable Value Object when the concept is composite (e.g. `Health` with current and max values, `Money` with amount and currency) or when validation/calculation logic is reused across multiple entities.
+- In Doctrine, Value Objects live in `Entity/` (or `Entity/ValueObject/`) and use `#[ORM\Embeddable]` to embed directly into the entity table without join overhead.
 - Prefer using static factory methods with private constructors: clearer intent, multiple constructors, and a single entry point.
 
-## Entities are mutable
+## Entities are mutable (Identity & Null Safety)
 
 An Entity has an identity and changes during its lifetime. For example, a customer address may change, but it is still the same customer.
 
-- The ID, once assigned, never changes. Never define a setter for the ID; it is managed by the ORM or generated at instantiation.
-- Prefer UUIDv7 over autoincrement.
+- **Non-Nullable Identity (Null Safety):** An entity must never exist in an "incomplete" state in memory with a `null` ID. Its ID is assigned at instantiation and is strictly non-nullable (`private readonly Uuid $id`).
+- **Decoupled Identity Generation:** The Use Case does not know the technical mechanics of UUID creation. Instead, it relies on a dedicated outbound port:
+  ```php
+  namespace App\Shop\Port\Out;
+
+  interface IdentityGeneratorPort
+  {
+      public function generate(): Uuid;
+  }
+  ```
+  The infrastructure adapter (`Infrastructure/Persistence/IdentityGenerator`) injects Symfony's `UuidFactory` and generates time-ordered UUIDv7 based on `config/packages/uid.yaml`.
+- **Doctrine `strategy: 'NONE'`:** By omitting `#[ORM\GeneratedValue]`, Doctrine automatically persists the application-assigned ID. During reads, Doctrine reconstitutes the entity via reflection without invoking the constructor.
+- The ID, once assigned, never changes. Never define a setter for the ID.
 - Avoid exposing public setters for mutable state. Use semantic methods (`changeAddress()`, `markAsSold()`) that enforce invariants before updating internal properties.
 - Entities should remain shielded from external layers: Controllers and API adapters receive DTOs (DataContracts), never entities directly.
 
@@ -196,9 +208,14 @@ Any dependency that touches external state, framework containers, or I/O drivers
 - **Network & Serialization**
 - **Third-Party APIs:**
 
-## Short circuit?
+## No Short-Circuiting (Strict Layer Separation)
 
-For example, a Controller in Infrastructure only needs raw data from an API. Do we need to call Application for that (there isn't really a use case), or do we call the API directly from the controller? The two solutions may be acceptable. If we don't call the Application, then the use case does not appear in Application, and there is a direct dependency between the controller view and the API. If we call the application, then there is more code and more mapping, but the use case appears.
+An inbound delivery adapter (Controller, CLI command, Message Handler) must **never directly call** an outbound infrastructure adapter (API client, database query, external service). Every interaction must go through an `Application` Use Case (or Query).
+
+Even if the Use Case is only 3 lines of orchestration, passing through `Application`:
+- Preserves the functional visibility of all capabilities within `Application/UseCase`.
+- Maintains strict boundary insulation between Inbound and Outbound adapters.
+- Allows testing the business flow in pure, fast unit tests without requiring HTTP or framework infrastructure.
 
 ## Autowiring (Symfony)
 
@@ -208,11 +225,19 @@ Because Use Cases are concrete classes, Symfony autowires them automatically int
 
 For outbound interfaces in `Port/Out` (`MonsterRepositoryPort`, `TransactionPort`), Symfony autowires them automatically to their respective Infrastructure implementation classes. Manual aliases in `services.yaml` are only required if an interface has multiple implementations in the same environment.
 
-## The exceptions
+## Exceptions & Result Handling
 
-Important rule: throw early, catch late. It doesn't matter if the exception crosses multiple layers.
+Important rule: **throw early, catch late**.
 
-We may use a standard PHP exception in Application.
+1. **Expected Business Outcomes vs Exceptions:**
+   - Prefer returning typed Result DTOs (e.g. `BuyItemDto(success: false, rejectionReason: SaleRejectionReason::NOT_READY_TO_FIGHT)`) for predictable business rejections (inspired by `Result<T, E>` in languages like Rust). Avoid using exceptions as normal control flow.
+   - Reserve Exceptions for broken invariants (`InvalidArgumentException`, `LogicException`) or missing resources (`MonsterNotFoundException`).
+2. **Avoid Exception Proliferation:**
+   - Do not create a separate exception class for every situation. Leverage standard PHP exceptions, and introduce custom domain exceptions only when distinct recovery or handling logic is needed.
+3. **Zero Framework Attributes in Application:**
+   - Never put framework attributes (like Symfony's `#[WithHttpStatus]`) in `Application` or `Port`. ORM-specific attributes are permitted on entities and value objects for pragmatic reasons.
+4. **Infrastructure Translates to HTTP:**
+   - The delivery layer handles translation centrally (e.g. via an `ApiExceptionSubscriber` in `Infrastructure/EventListener` listening to `kernel.exception`) to map domain exceptions into appropriate HTTP status codes (404, 422, 500) without duplicating try/catch blocks in controllers.
 
 ## Avoid inheritance
 
@@ -251,10 +276,11 @@ interface TransactionPort
 - **Predictable & Universal:** Works identically across Web Controllers, Messenger workers, CLI commands, and PHPUnit integration tests without fragmented, magic event listeners.
 - **Automatic Rollback:** If an exception is thrown inside the callable, the transaction rolls back automatically.
 
-### 3. Safe Event & Message Dispatching
+### 3. Safe Event & Message Dispatching (Transactional Outbox)
 Never dispatch asynchronous messages (e.g. RabbitMQ, Redis) inside or before the database transaction:
 - Dispatch messages strictly **after** `$this->transaction->run()` commits successfully.
 - If the transaction fails or rolls back, execution halts and the message is never sent.
+- **The Dual-Write Tradeoff:** Dispatching post-commit leaves a small residual risk: if the database commits and the process or message broker crashes immediately afterwards before `send()`, the message is lost. In Symfony 7.4, post-commit dispatching is an accepted pragmatic compromise. For mission-critical consistency, the target pattern is the **Transactional Outbox Pattern** (natively supported via `OutboxMiddleware` in Symfony 8.2+ or via Symfony Messenger's Doctrine transport), which stores the message in the database within the same atomic SQL transaction.
 - **Test in PHPUnit:** Always write a unit test with `$sendMessageMock->expects($this->never())->method('send')` to verify that when a transaction fails, no message is dispatched.
 
 ## Comment
@@ -300,20 +326,20 @@ Validations are divided into three distinct levels:
 
 ## Use a tool to check the dependencies
 
-For example: https://github.com/qossmic/deptrac
+For example: https://github.com/deptrac/deptrac
 
 ## Tests
 
 Different types of tests are possible:
 
-- classic unit tests for each method
-- test on a use case (mock Port)
-- test only Infrastructure (mock Port, test persistence with a real db, test controllers with an http client, ...)
-- test all the application without mock
+- Classic unit tests for each method
+- Test on a use case (mock Port)
+- Integration tests
+  - When a test interacts with a DB, it should roll back the changes to not impact the other tests.
+  - Mock the clients
+- Functional tests
 
-Few tips:
-- When a test interacts with a DB, it should rollback the changes.
-- Add a test when we encounter a bug.
+Add a test when you encounter a bug.
 
 ## Books
 
