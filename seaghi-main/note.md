@@ -2,7 +2,9 @@
 
 These are my few notes on what might be a good pragmatic architecture for an application.
 
-## The Seaghi Architecture
+## Seaghi Architecture
+
+Seaghi comes from the contraction of seagull and archi. A way of giving a name to my way of seeing architecture.
 
 Architectures like the hexagonal architecture used with DDD are complex and heavy. Lot of code, mapping hell, bloated domain objects trap, too many technical questionings, books that need hundreds of pages to explain the basis... Really productive architecture?
 
@@ -22,8 +24,6 @@ Picture generated with:
 ```sh
 make deptrac-diag
 ```
-
-It looks like bird wings. So I called this architecture the **Seaghi Architecture** (**seag**ull + arc**hi**).
 
 ## Overview
 
