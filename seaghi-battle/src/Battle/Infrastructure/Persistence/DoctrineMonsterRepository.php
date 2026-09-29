@@ -35,16 +35,6 @@ readonly class DoctrineMonsterRepository implements MonsterRepositoryPort
         return $this->entityManager->find(Monster::class, $id);
     }
 
-    /**
-     * @return iterable<Monster>
-     */
-    public function findAll(): iterable
-    {
-        foreach ($this->entityManager->getRepository(Monster::class)->findAll() as $monster) {
-            yield $monster;
-        }
-    }
-
     public function save(Monster $monster): void
     {
         $this->entityManager->persist($monster);

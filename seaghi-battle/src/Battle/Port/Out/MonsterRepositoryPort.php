@@ -20,10 +20,5 @@ interface MonsterRepositoryPort
 
     public function find(Uuid $id): ?Monster;
 
-    /**
-     * @return iterable<Monster>
-     */
-    public function findAll(): iterable;
-
     public function save(Monster $monster): void;
 }

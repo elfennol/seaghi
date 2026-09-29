@@ -16,10 +16,10 @@ readonly class ListMonster
     }
 
     /**
-     * @return ListMonsterDto[]
+     * @return iterable<ListMonsterDto>
      */
     #[Route('/monster/list', methods: ['GET'])]
-    public function __invoke(): array
+    public function __invoke(): iterable
     {
         return $this->listMonster->list();
     }

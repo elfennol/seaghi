@@ -23,12 +23,6 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Table(name: 'monster')]
 class Monster
 {
-    #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator('doctrine.uuid_generator')]
-    private ?Uuid $id = null;
-
     #[ORM\Column(options: ['default' => 0])]
     private int $currentHealth;
 
@@ -39,6 +33,9 @@ class Monster
     private Collection $effects;
 
     public function __construct(
+        #[ORM\Id]
+        #[ORM\Column(type: 'uuid', unique: true)]
+        private readonly Uuid $id,
         #[ORM\Column(length: 255)]
         private string $firstName,
         #[ORM\Column(length: 255)]
@@ -49,11 +46,18 @@ class Monster
         private int $defense,
         ?int $currentHealth = null,
     ) {
+        if ($defense < 0 || $defense > 19) {
+            throw new InvalidArgumentException('Defense must be between 0 and 19.');
+        }
+        if ($maxHealth < 0) {
+            throw new InvalidArgumentException('Max health must be greater than or equal to 0.');
+        }
+
         $this->currentHealth = $currentHealth ?? $maxHealth;
         $this->effects = new ArrayCollection();
     }
 
-    public function getId(): ?Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }

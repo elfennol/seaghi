@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Battle\Application\UseCase;
 
-use App\Battle\Application\Component\Difficulty\DifficultyNormalStrategy;
 use App\Battle\Application\Enum\Category;
+use App\Battle\Application\Rule\Difficulty\DifficultyNormalStrategy;
 use App\Battle\Application\UseCase\SpawnMonster;
-use App\Battle\Entity\Monster;
+use App\Battle\Port\Out\IdentityGeneratorPort;
 use App\Battle\Port\Out\MonsterRepositoryPort;
 use App\Battle\Port\Out\TransactionPort;
-use App\Tests\Battle\Application\EntityIdSetterTrait;
 use Exception;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -18,12 +17,12 @@ use Symfony\Component\Uid\Uuid;
 
 class SpawnMonsterTest extends TestCase
 {
-    use EntityIdSetterTrait;
-
     private SpawnMonster $spawnMonster;
     private MonsterRepositoryPort $monsterRepository;
     private DifficultyNormalStrategy $difficultyStrategy;
     private TransactionPort $transaction;
+    private IdentityGeneratorPort $identityGenerator;
+    private Uuid $fixedUuid;
 
     protected function setUp(): void
     {
@@ -31,28 +30,25 @@ class SpawnMonsterTest extends TestCase
         $this->difficultyStrategy = new DifficultyNormalStrategy();
         $this->transaction = $this->createStub(TransactionPort::class);
         $this->transaction->method('run')->willReturnCallback(static fn (callable $operation): mixed => $operation());
+        $this->fixedUuid = Uuid::fromString('11111111-1111-1111-1111-111111111111');
+        $this->identityGenerator = $this->createStub(IdentityGeneratorPort::class);
+        $this->identityGenerator->method('generate')->willReturn($this->fixedUuid);
 
         $this->spawnMonster = new SpawnMonster(
             $this->monsterRepository,
             $this->difficultyStrategy,
             $this->transaction,
+            $this->identityGenerator,
         );
     }
 
     /**
      * When receiving a sold monster message
      * Then this monster is spawned for the battle for a given difficulty
-     *
-     * @dataProvider spawnProvider
      */
     #[DataProvider('spawnProvider')]
     public function testSpawn(int $expectedDefense, int $expectedHealth, Category $category, int $level): void
     {
-        $this->monsterRepository->method('save')
-            ->willReturnCallback(function (Monster $monster): void {
-                $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
-            });
-
         $spawnMonster = $this->spawnMonster->spawn(
             'my_first_name',
             'my_last_name',
@@ -60,8 +56,9 @@ class SpawnMonsterTest extends TestCase
             $level,
         );
 
-        $this::assertEquals($expectedDefense, $spawnMonster->defense);
-        $this::assertEquals($expectedHealth, $spawnMonster->maxHealth);
+        $this::assertSame($this->fixedUuid, $spawnMonster->id);
+        $this::assertSame($expectedDefense, $spawnMonster->defense);
+        $this::assertSame($expectedHealth, $spawnMonster->maxHealth);
     }
 
     /**
@@ -73,11 +70,6 @@ class SpawnMonsterTest extends TestCase
     {
         $this->expectException(Exception::class);
 
-        $this->monsterRepository->method('save')
-            ->willReturnCallback(function (Monster $monster): void {
-                $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
-            });
-
         $this->spawnMonster->spawn(
             'my_first_name',
             'my_last_name',
@@ -88,6 +80,8 @@ class SpawnMonsterTest extends TestCase
 
     /**
      * [[expected defense, expected health, category, level], ...]
+     *
+     * @return array<int, array{int, int, Category, int}>
      */
     public static function spawnProvider(): array
     {

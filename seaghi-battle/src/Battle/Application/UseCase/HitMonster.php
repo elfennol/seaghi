@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Battle\Application\UseCase;
 
-use App\Battle\Application\Component\ComputeDamageSeverity;
-use App\Battle\Application\Component\ComputeHitSeverity;
+use App\Battle\Application\Rule\ComputeDamageSeverity;
+use App\Battle\Application\Rule\ComputeHitSeverity;
+use App\Battle\Application\Rule\HitSeverity;
 use App\Battle\Port\DataContract\HitMonsterDto;
 use App\Battle\Port\Out\EffectRepositoryPort;
 use App\Battle\Port\Out\MonsterRepositoryPort;
@@ -43,8 +44,6 @@ readonly class HitMonster
             $monster->replaceEffects($appliedEffects);
             $this->monsterRepository->save($monster);
         });
-
-        assert($monster->getId() !== null);
 
         return new HitMonsterDto(
             $monster->getId(),

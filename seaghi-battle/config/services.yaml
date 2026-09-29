@@ -45,6 +45,8 @@ when@prod: &prod
         App\Battle\Port\Out\EffectRepositoryPort: '@App\Battle\Infrastructure\Persistence\DoctrineEffectRepository'
         App\Battle\Port\Out\TransactionPort: '@App\Battle\Infrastructure\Persistence\DoctrineTransaction'
         App\Battle\Port\Out\PickRandomIntPort: '@App\Battle\Infrastructure\Random\RandomProcessor'
+        App\Battle\Port\Out\IdentityGeneratorPort: '@App\Battle\Infrastructure\Persistence\IdentityGenerator'
+        App\Battle\Port\Out\ListMonsterPort: '@App\Battle\Infrastructure\Persistence\ListMonsterQuery'
 
 when@dev:
     <<: *prod

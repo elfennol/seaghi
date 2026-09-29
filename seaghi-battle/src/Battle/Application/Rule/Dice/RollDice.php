@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Battle\Application\Component\Dice;
+namespace App\Battle\Application\Rule\Dice;
 
 use App\Battle\Port\Out\PickRandomIntPort;
 

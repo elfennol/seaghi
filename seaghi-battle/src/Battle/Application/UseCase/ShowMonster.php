@@ -19,7 +19,6 @@ readonly class ShowMonster
     public function show(Uuid $monsterId): ShowMonsterDto
     {
         $monster = $this->monsterRepository->get($monsterId);
-        assert($monster->getId() !== null);
 
         $effects = [];
         foreach ($monster->getEffects() as $effect) {

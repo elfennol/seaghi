@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Battle\Application\Component\Difficulty;
+namespace App\Battle\Application\Rule\Difficulty;
 
 use App\Battle\Application\Enum\Category;
 

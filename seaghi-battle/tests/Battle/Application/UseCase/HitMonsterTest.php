@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Battle\Application\UseCase;
 
-use App\Battle\Application\Component\ComputeDamageSeverity;
-use App\Battle\Application\Component\ComputeHitSeverity;
-use App\Battle\Application\Component\Dice\RollDice;
+use App\Battle\Application\Rule\ComputeDamageSeverity;
+use App\Battle\Application\Rule\ComputeHitSeverity;
+use App\Battle\Application\Rule\Dice\RollDice;
 use App\Battle\Application\UseCase\HitMonster;
 use App\Battle\Entity\Effect;
 use App\Battle\Entity\Monster;
@@ -14,15 +14,12 @@ use App\Battle\Port\Out\EffectRepositoryPort;
 use App\Battle\Port\Out\MonsterRepositoryPort;
 use App\Battle\Port\Out\PickRandomIntPort;
 use App\Battle\Port\Out\TransactionPort;
-use App\Tests\Battle\Application\EntityIdSetterTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
 class HitMonsterTest extends TestCase
 {
-    use EntityIdSetterTrait;
-
     private HitMonster $hitMonster;
     private MonsterRepositoryPort $monsterRepository;
     private EffectRepositoryPort $effectRepository;
@@ -129,6 +126,8 @@ class HitMonsterTest extends TestCase
 
     /**
      * [[expected health, provided random int, defense], ...]
+     *
+     * @return array<int, array{int, int, int}>
      */
     public static function hitProviderBelowDefense(): array
     {
@@ -140,6 +139,8 @@ class HitMonsterTest extends TestCase
 
     /**
      * [[expected health, provided random int, defense], ...]
+     *
+     * @return array<int, array{int, int, int}>
      */
     public static function hitProviderAboveDefense(): array
     {
@@ -151,9 +152,6 @@ class HitMonsterTest extends TestCase
 
     private function buildMonster(int $defense, int $maxHealth = 20, int $currentHealth = 10): Monster
     {
-        $monster = new Monster('my_first_name', 'my_last_name', $maxHealth, $defense, $currentHealth);
-        $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
-
-        return $monster;
+        return new Monster(Uuid::fromString('11111111-1111-1111-1111-111111111111'), 'my_first_name', 'my_last_name', $maxHealth, $defense, $currentHealth);
     }
 }

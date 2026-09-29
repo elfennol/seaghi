@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Battle\Application\Component;
+namespace App\Battle\Application\Rule;
 
-use App\Battle\Application\Component\Dice\Dice;
-use App\Battle\Application\Component\Dice\RollDice;
+use App\Battle\Application\Rule\Dice\Dice;
+use App\Battle\Application\Rule\Dice\RollDice;
 use App\Battle\Application\Enum\HitForce;
 
 /**

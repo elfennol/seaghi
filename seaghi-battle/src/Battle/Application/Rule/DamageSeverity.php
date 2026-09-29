@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Battle\Application\Component;
+namespace App\Battle\Application\Rule;
 
 /**
  * Damage severity result.

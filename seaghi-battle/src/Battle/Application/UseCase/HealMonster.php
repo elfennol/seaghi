@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Battle\Application\UseCase;
 
-use App\Battle\Application\Component\ComputeHealing;
+use App\Battle\Application\Rule\ComputeHealing;
 use App\Battle\Port\DataContract\HealMonsterDto;
 use App\Battle\Port\Out\MonsterRepositoryPort;
 use App\Battle\Port\Out\TransactionPort;
@@ -22,7 +22,6 @@ readonly class HealMonster
     public function heal(Uuid $monsterId): HealMonsterDto
     {
         $monster = $this->monsterRepository->get($monsterId);
-        assert($monster->getId() !== null);
 
         $healResult = $this->computeHeal->compute();
 

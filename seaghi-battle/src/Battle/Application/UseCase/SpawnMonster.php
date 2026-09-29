@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Battle\Application\UseCase;
 
-use App\Battle\Application\Component\Difficulty\DifficultyNormalStrategy;
 use App\Battle\Application\Enum\Category;
+use App\Battle\Application\Rule\Difficulty\DifficultyNormalStrategy;
 use App\Battle\Entity\Monster;
 use App\Battle\Port\DataContract\SpawnMonsterDto;
+use App\Battle\Port\Out\IdentityGeneratorPort;
 use App\Battle\Port\Out\MonsterRepositoryPort;
 use App\Battle\Port\Out\TransactionPort;
 use Exception;
@@ -18,6 +19,7 @@ readonly class SpawnMonster
         private MonsterRepositoryPort $monsterRepository,
         private DifficultyNormalStrategy $difficultyStrategy,
         private TransactionPort $transaction,
+        private IdentityGeneratorPort $identityGenerator,
     ) {
     }
 
@@ -32,6 +34,7 @@ readonly class SpawnMonster
         $defense = $this->difficultyStrategy->buildDefense($categoryEnum);
 
         $monster = new Monster(
+            $this->identityGenerator->generate(),
             $firstName,
             $lastName,
             $health,
@@ -41,8 +44,6 @@ readonly class SpawnMonster
         $this->transaction->run(function () use ($monster): void {
             $this->monsterRepository->save($monster);
         });
-
-        assert($monster->getId() !== null);
 
         return new SpawnMonsterDto(
             $monster->getId(),

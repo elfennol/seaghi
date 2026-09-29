@@ -4,22 +4,19 @@ declare(strict_types=1);
 
 namespace App\Tests\Battle\Application\UseCase;
 
-use App\Battle\Application\Component\ComputeHealing;
-use App\Battle\Application\Component\Dice\RollDice;
+use App\Battle\Application\Rule\ComputeHealing;
+use App\Battle\Application\Rule\Dice\RollDice;
 use App\Battle\Application\UseCase\HealMonster;
 use App\Battle\Entity\Monster;
 use App\Battle\Port\Out\MonsterRepositoryPort;
 use App\Battle\Port\Out\PickRandomIntPort;
 use App\Battle\Port\Out\TransactionPort;
-use App\Tests\Battle\Application\EntityIdSetterTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
 class HealMonsterTest extends TestCase
 {
-    use EntityIdSetterTrait;
-
     private HealMonster $healMonster;
     private MonsterRepositoryPort $monsterRepository;
     private PickRandomIntPort $pickRandomInt;
@@ -52,8 +49,7 @@ class HealMonsterTest extends TestCase
     public function testHeal(int $expectedHealth, int $providedRandomInt): void
     {
         $this->pickRandomInt->method('pickRandomInt')->willReturn($providedRandomInt);
-        $monster = new Monster('my_first_name', 'my_last_name', 20, 10, 10);
-        $this->setEntityId($monster, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
+        $monster = new Monster(Uuid::fromString('11111111-1111-1111-1111-111111111111'), 'my_first_name', 'my_last_name', 20, 10, 10);
 
         $this->monsterRepository->method('get')
             ->willReturn($monster);
@@ -63,6 +59,8 @@ class HealMonsterTest extends TestCase
 
     /**
      * [[expected health, provided random int], ...]
+     *
+     * @return array<int, array{int, int}>
      */
     public static function healProvider(): array
     {
