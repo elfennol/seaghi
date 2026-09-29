@@ -6,7 +6,7 @@ namespace App\Shop\Application\UseCase;
 
 use App\Shop\Port\DataContract\SearchMonsterDto;
 use App\Shop\Port\Out\SearchMonsterPort;
-use Exception;
+use InvalidArgumentException;
 
 /**
  * The player is not allowed to see a monster with a level > 10 in the list.
@@ -23,29 +23,14 @@ readonly class ListItem
     }
 
     /**
-     * @return SearchMonsterDto[]
+     * @return iterable<SearchMonsterDto>
      */
     public function list(int $levelMin, int $levelMax): iterable
     {
         if ($levelMin < 1 || $levelMin > 10 || $levelMax < 1 || $levelMax > 10) {
-            throw new Exception('Allowed levels are between 1 and 10.');
+            throw new InvalidArgumentException('Allowed levels are between 1 and 10.');
         }
 
-        $listResult = [];
-        foreach ($this->searchMonster->search($levelMin, $levelMax) as $monsterEntity) {
-            assert($monsterEntity->getId() !== null);
-            $listResult[] = new SearchMonsterDto(
-                $monsterEntity->getId(),
-                $monsterEntity->getCategory()->getCode(),
-                $monsterEntity->getLevel(),
-                $monsterEntity->getPrice(),
-                $monsterEntity->getFirstName(),
-                $monsterEntity->getLastName(),
-                $monsterEntity->isAvailable(),
-                $monsterEntity->isSick(),
-            );
-        }
-
-        return $listResult;
+        return $this->searchMonster->search($levelMin, $levelMax);
     }
 }

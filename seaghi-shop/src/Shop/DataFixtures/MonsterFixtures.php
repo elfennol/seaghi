@@ -8,6 +8,7 @@ use App\Shop\Entity\Category;
 use App\Shop\Entity\Monster;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Uid\Uuid;
 
 class MonsterFixtures extends Fixture
 {
@@ -30,11 +31,12 @@ class MonsterFixtures extends Fixture
             [$shapeshifterChicken, 5, 120, 'Big', 'Brain'],
             [$lolCat, 3, 75, 'Master', 'Oftheworld'],
             [$caribouAvenger, 3, 240, 'Frosted', 'Walker'],
-            [$caribouAvenger, 12, 1340, 'Fog', 'Horn'],
+            [$caribouAvenger, 10, 1340, 'Fog', 'Horn'],
         ];
 
         foreach ($monstersData as [$category, $level, $price, $firstName, $lastName]) {
             $monster = new Monster(
+                Uuid::v7(),
                 $category,
                 $level,
                 $price,

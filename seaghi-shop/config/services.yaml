@@ -39,6 +39,7 @@ services:
 when@prod: &prod
     services:
         # Port OUT
+        App\Shop\Port\Out\IdentityGeneratorPort: '@App\Shop\Infrastructure\Persistence\IdentityGenerator'
         App\Shop\Port\Out\MonsterRepositoryPort: '@App\Shop\Infrastructure\Persistence\DoctrineMonsterRepository'
         App\Shop\Port\Out\SearchMonsterPort: '@App\Shop\Infrastructure\Persistence\SearchMonsterQuery'
         App\Shop\Port\Out\SendMessagePort: '@App\Shop\Infrastructure\Messenger\SendMessage'

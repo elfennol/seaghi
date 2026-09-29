@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Shop\Infrastructure\Messenger;
 
-use App\Shop\Port\Out\MessageContract\MessageMc;
 use App\Shop\Port\Out\SendMessagePort;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -18,7 +17,7 @@ readonly class SendMessage implements SendMessagePort
     ) {
     }
 
-    public function send(MessageMc $message): void
+    public function send(object $message): void
     {
         $this->messageBus->dispatch($message);
     }

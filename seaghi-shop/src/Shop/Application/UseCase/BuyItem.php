@@ -6,7 +6,7 @@ namespace App\Shop\Application\UseCase;
 
 use App\Shop\Application\Enum\SaleRejectionReason;
 use App\Shop\Port\DataContract\BuyItemDto;
-use App\Shop\Port\Out\MessageContract\MonsterSoldMessage;
+use App\Shop\Port\DataContract\MonsterSoldMessage;
 use App\Shop\Port\Out\MonsterRepositoryPort;
 use App\Shop\Port\Out\SendMessagePort;
 use App\Shop\Port\Out\TransactionPort;

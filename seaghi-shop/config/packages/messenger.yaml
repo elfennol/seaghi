@@ -13,7 +13,7 @@ framework:
 
         routing:
             # Route your messages to the transports
-            'App\Shop\Port\Out\MessageContract\MonsterSoldMessage': async
+            'App\Shop\Port\DataContract\MonsterSoldMessage': async
 
 when@test:
    framework:

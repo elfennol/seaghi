@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shop\Port\Out;
 
-use App\Shop\Entity\Monster;
+use App\Shop\Port\DataContract\SearchMonsterDto;
 
 /**
  * Search monsters with the given filters.
@@ -12,7 +12,7 @@ use App\Shop\Entity\Monster;
 interface SearchMonsterPort
 {
     /**
-     * @return Monster[]
+     * @return iterable<SearchMonsterDto>
      */
     public function search(int $levelMin, int $levelMax): iterable;
 }

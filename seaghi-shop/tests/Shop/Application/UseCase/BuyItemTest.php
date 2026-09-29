@@ -7,12 +7,11 @@ namespace App\Tests\Shop\Application\UseCase;
 use App\Shop\Application\UseCase\BuyItem;
 use App\Shop\Entity\Category;
 use App\Shop\Entity\Monster;
-use App\Shop\Port\Out\MessageContract\MonsterSoldMessage;
+use App\Shop\Port\DataContract\MonsterSoldMessage;
 use App\Shop\Port\Out\MonsterRepositoryPort;
 use App\Shop\Port\Out\SendMessagePort;
 use App\Shop\Port\Out\TransactionPort;
 use App\Shop\Port\Out\WithdrawFromAccountPort;
-use App\Tests\Shop\Application\EntityIdSetterTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -20,8 +19,6 @@ use Symfony\Component\Uid\Uuid;
 
 class BuyItemTest extends TestCase
 {
-    use EntityIdSetterTrait;
-
     private BuyItem $buyItem;
     private MonsterRepositoryPort $monsterRepository;
     private WithdrawFromAccountPort $withdrawFromAccount;
@@ -125,20 +122,24 @@ class BuyItemTest extends TestCase
         $category = new Category();
         $category->setCode(Category::CODE_SHAPESHIFTER_CHICKEN);
 
+        $initialLevel = min($level, 10);
         $monsterEntity = new Monster(
+            Uuid::fromString('11111111-1111-1111-1111-111111111111'),
             $category,
-            $level,
+            $initialLevel,
             10,
             'first_name',
             'last_name',
         );
+        for ($i = $initialLevel; $i < $level; $i++) {
+            $monsterEntity->levelUp();
+        }
         if (!$isAvailable) {
             $monsterEntity->makeUnavailable();
         }
         if ($isSick) {
             $monsterEntity->makeSick();
         }
-        $this->setEntityId($monsterEntity, Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         return $monsterEntity;
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shop\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use LogicException;
 use Symfony\Component\Uid\Uuid;
 
@@ -20,12 +21,6 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Table(name: 'monster')]
 class Monster
 {
-    #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator('doctrine.uuid_generator')]
-    private ?Uuid $id = null;
-
     #[ORM\Column(options: ['default' => true])]
     private bool $available = true;
 
@@ -33,6 +28,9 @@ class Monster
     private bool $sick = false;
 
     public function __construct(
+        #[ORM\Id]
+        #[ORM\Column(type: 'uuid', unique: true)]
+        private readonly Uuid $id,
         #[ORM\ManyToOne]
         #[ORM\JoinColumn(nullable: false)]
         private Category $category,
@@ -45,9 +43,15 @@ class Monster
         #[ORM\Column(length: 255)]
         private string $lastName,
     ) {
+        if ($price < 0) {
+            throw new InvalidArgumentException('Price must be greater than or equal to 0.');
+        }
+        if ($level < 1 || $level > 10) {
+            throw new InvalidArgumentException('Level must be between 1 and 10.');
+        }
     }
 
-    public function getId(): ?Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }

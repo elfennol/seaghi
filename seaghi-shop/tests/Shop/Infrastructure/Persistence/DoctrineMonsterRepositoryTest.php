@@ -26,7 +26,7 @@ class DoctrineMonsterRepositoryTest extends TestCase
     public function testFindReturnsMonster(): void
     {
         $id = Uuid::v7();
-        $monster = new Monster(new Category(), 2, 20, 'Fang', 'Beast');
+        $monster = new Monster($id, new Category(), 2, 20, 'Fang', 'Beast');
         $this->entityManager->method('find')->willReturn($monster);
 
         $result = $this->repository->find($id);
@@ -47,7 +47,7 @@ class DoctrineMonsterRepositoryTest extends TestCase
     public function testGetReturnsMonster(): void
     {
         $id = Uuid::v7();
-        $monster = new Monster(new Category(), 2, 20, 'Fang', 'Beast');
+        $monster = new Monster($id, new Category(), 2, 20, 'Fang', 'Beast');
         $this->entityManager->method('find')->willReturn($monster);
 
         $result = $this->repository->get($id);
@@ -68,7 +68,8 @@ class DoctrineMonsterRepositoryTest extends TestCase
 
     public function testSavePersistsEntity(): void
     {
-        $monster = new Monster(new Category(), 2, 20, 'Fang', 'Beast');
+        $id = Uuid::v7();
+        $monster = new Monster($id, new Category(), 2, 20, 'Fang', 'Beast');
         $mockEm = $this->createMock(EntityManagerInterface::class);
         $mockEm->expects($this->once())->method('persist')->with($monster);
 

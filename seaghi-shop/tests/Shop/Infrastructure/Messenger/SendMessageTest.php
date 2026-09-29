@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Shop\Infrastructure\Messenger;
 
 use App\Shop\Infrastructure\Messenger\SendMessage;
-use App\Shop\Port\Out\MessageContract\MonsterSoldMessage;
+use App\Shop\Port\DataContract\MonsterSoldMessage;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;

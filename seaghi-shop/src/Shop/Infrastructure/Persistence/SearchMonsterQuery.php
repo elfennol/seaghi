@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shop\Infrastructure\Persistence;
 
-use App\Shop\Entity\Monster;
+use App\Shop\Port\DataContract\SearchMonsterDto;
 use App\Shop\Port\Out\SearchMonsterPort;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -21,14 +20,26 @@ readonly class SearchMonsterQuery implements SearchMonsterPort
 
     public function search(int $levelMin, int $levelMax): iterable
     {
-        $expr = Criteria::expr();
-        $criteria = Criteria::create();
-        $criteria->where($expr->gte('level', $levelMin));
-        $criteria->andwhere($expr->lte('level', $levelMax));
+        $dql = 'SELECT NEW App\Shop\Port\DataContract\SearchMonsterDto(
+                    m.id,
+                    c.code,
+                    m.level,
+                    m.price,
+                    m.firstName,
+                    m.lastName,
+                    m.available,
+                    m.sick
+                )
+                FROM App\Shop\Entity\Monster m
+                JOIN m.category c
+                WHERE m.level >= :levelMin AND m.level <= :levelMax';
 
-        /** @var Monster $monsterEntity */
-        foreach ($this->entityManager->getRepository(Monster::class)->matching($criteria) as $monsterEntity) {
-            yield $monsterEntity;
-        }
+        /** @var list<SearchMonsterDto> $result */
+        $result = $this->entityManager->createQuery($dql)
+            ->setParameter('levelMin', $levelMin)
+            ->setParameter('levelMax', $levelMax)
+            ->getResult();
+
+        return $result;
     }
 }
