@@ -10,7 +10,7 @@ See [seaghi-main/INSTALL.md](seaghi-main/INSTALL.md).
 
 ## Play
 
-The domain is a RPG game divide in two contexts: Shop and Battle. Account simulate an external provider.
+The domain is an RPG game divided in two contexts: Shop and Battle. Account simulates an external provider.
 
 See [seaghi-qa/functional-tests/play.http](seaghi-qa/functional-tests/play.http). You can execute the requests directly in PHPStorm. Base urls are defined in [seaghi-qa/functional-tests/http-client.env.json](seaghi-qa/functional-tests/http-client.env.json).
 
