@@ -16,8 +16,8 @@ services:
         exclude:
             - '../src/Kernel.php'
             - '../src/Tests/'
-            - '../src/Battle/Port/'
             - '../src/Battle/Entity/'
+            - '../src/Battle/Port/DataContract/'
 
     App\Battle\Infrastructure\HttpApi\Controller\:
         resource: '../src/Battle/Infrastructure/HttpApi/Controller/'
@@ -37,16 +37,3 @@ services:
     Symfony\Component\Uid\Command\GenerateUuidCommand: ~
     Symfony\Component\Uid\Command\InspectUlidCommand: ~
     Symfony\Component\Uid\Command\InspectUuidCommand: ~
-
-when@prod: &prod
-    services:
-        # Port OUT
-        App\Battle\Port\Out\MonsterRepositoryPort: '@App\Battle\Infrastructure\Persistence\DoctrineMonsterRepository'
-        App\Battle\Port\Out\EffectRepositoryPort: '@App\Battle\Infrastructure\Persistence\DoctrineEffectRepository'
-        App\Battle\Port\Out\TransactionPort: '@App\Battle\Infrastructure\Persistence\DoctrineTransaction'
-        App\Battle\Port\Out\PickRandomIntPort: '@App\Battle\Infrastructure\Random\RandomProcessor'
-        App\Battle\Port\Out\IdentityGeneratorPort: '@App\Battle\Infrastructure\Persistence\IdentityGenerator'
-        App\Battle\Port\Out\ListMonsterPort: '@App\Battle\Infrastructure\Persistence\ListMonsterQuery'
-
-when@dev:
-    <<: *prod

@@ -1,7 +1,5 @@
 # Some thoughts on code architecture
 
-🚧 Work in progress 🚧
-
 My notes are available in [seaghi-main/note.md](seaghi-main/note.md).
 
 If you want to share your thoughts on this architecture: [Your thoughts on this architecture](https://github.com/elfennol/seaghi/discussions/categories/your-thoughts-on-this-architecture)

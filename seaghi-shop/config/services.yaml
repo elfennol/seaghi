@@ -18,8 +18,8 @@ services:
         exclude:
             - '../src/Kernel.php'
             - '../src/Tests/'
-            - '../src/Shop/Port/'
             - '../src/Shop/Entity/'
+            - '../src/Shop/Port/DataContract/'
 
     App\Shop\Infrastructure\HttpApi\Controller\:
         resource: '../src/Shop/Infrastructure/HttpApi/Controller/'
@@ -35,16 +35,3 @@ services:
         arguments:
             $format: 'json'
     Symfony\Component\Messenger\Transport\Serialization\SerializerInterface $msgJsonSerializer: '@Symfony\Component\Messenger\Transport\Serialization\Serializer'
-
-when@prod: &prod
-    services:
-        # Port OUT
-        App\Shop\Port\Out\IdentityGeneratorPort: '@App\Shop\Infrastructure\Persistence\IdentityGenerator'
-        App\Shop\Port\Out\MonsterRepositoryPort: '@App\Shop\Infrastructure\Persistence\DoctrineMonsterRepository'
-        App\Shop\Port\Out\SearchMonsterPort: '@App\Shop\Infrastructure\Persistence\SearchMonsterQuery'
-        App\Shop\Port\Out\SendMessagePort: '@App\Shop\Infrastructure\Messenger\SendMessage'
-        App\Shop\Port\Out\TransactionPort: '@App\Shop\Infrastructure\Persistence\DoctrineTransaction'
-        App\Shop\Port\Out\WithdrawFromAccountPort: '@App\Shop\Infrastructure\Client\AccountClient'
-
-when@dev:
-    <<: *prod
