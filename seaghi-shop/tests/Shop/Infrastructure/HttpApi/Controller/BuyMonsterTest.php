@@ -25,7 +25,7 @@ class BuyMonsterTest extends TestCase
     public function testInvokeDelegatesToBuyItem(): void
     {
         $monsterId = Uuid::v7();
-        $expectedDto = new BuyItemDto($monsterId, true, null);
+        $expectedDto = BuyItemDto::accepted($monsterId);
 
         $this->buyItem
             ->expects($this->once())

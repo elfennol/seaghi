@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Shop\Application\UseCase;
 
-use App\Shop\Application\Enum\SaleRejectionReason;
 use App\Shop\Port\DataContract\BuyItemDto;
 use App\Shop\Port\DataContract\MonsterSoldMessage;
+use App\Shop\Port\DataContract\SaleRejectionReason;
 use App\Shop\Port\Out\MonsterRepositoryPort;
 use App\Shop\Port\Out\SendMessagePort;
 use App\Shop\Port\Out\TransactionPort;
@@ -28,11 +28,11 @@ readonly class BuyItem
         $monster = $this->monsterRepository->get($monsterId);
 
         if (!$monster->isReadyToFight()) {
-            return new BuyItemDto($monsterId, false, SaleRejectionReason::NOT_READY_TO_FIGHT->name);
+            return BuyItemDto::rejected($monsterId, SaleRejectionReason::NOT_READY_TO_FIGHT);
         }
 
         if (!$this->withdrawFromAccount->withdraw()) {
-            return new BuyItemDto($monsterId, false, SaleRejectionReason::DIFFICULT_END_OF_MONTH->name);
+            return BuyItemDto::rejected($monsterId, SaleRejectionReason::DIFFICULT_END_OF_MONTH);
         }
 
         $this->transaction->run(function () use ($monster): void {
@@ -47,6 +47,6 @@ readonly class BuyItem
             $monster->getLevel(),
         ));
 
-        return new BuyItemDto($monsterId, true, null);
+        return BuyItemDto::accepted($monsterId);
     }
 }

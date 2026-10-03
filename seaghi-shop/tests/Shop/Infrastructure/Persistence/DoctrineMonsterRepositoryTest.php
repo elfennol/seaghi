@@ -9,37 +9,42 @@ use App\Shop\Entity\Monster;
 use App\Shop\Infrastructure\Persistence\DoctrineMonsterRepository;
 use App\Shop\Port\Out\Exception\MonsterNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
 class DoctrineMonsterRepositoryTest extends TestCase
 {
-    private EntityManagerInterface $entityManager;
-    private DoctrineMonsterRepository $repository;
-
-    protected function setUp(): void
-    {
-        $this->entityManager = $this->createStub(EntityManagerInterface::class);
-        $this->repository = new DoctrineMonsterRepository($this->entityManager);
-    }
-
-    public function testFindReturnsMonster(): void
+    public function testFindFetchesCategoryWithMonster(): void
     {
         $id = Uuid::v7();
         $monster = new Monster($id, new Category(), 2, 20, 'Fang', 'Beast');
-        $this->entityManager->method('find')->willReturn($monster);
 
-        $result = $this->repository->find($id);
+        $query = $this->createMock(Query::class);
+        $query->expects($this->once())
+            ->method('setParameter')
+            ->with('id', $id, UuidType::NAME)
+            ->willReturnSelf();
+        $query->method('getOneOrNullResult')->willReturn($monster);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects($this->once())
+            ->method('createQuery')
+            ->with($this->logicalAnd(
+                $this->stringContains('SELECT m, c'),
+                $this->stringContains('JOIN m.category c'),
+            ))
+            ->willReturn($query);
+
+        $result = new DoctrineMonsterRepository($entityManager)->find($id);
 
         $this::assertSame($monster, $result);
     }
 
     public function testFindReturnsNullWhenNotFound(): void
     {
-        $id = Uuid::v7();
-        $this->entityManager->method('find')->willReturn(null);
-
-        $result = $this->repository->find($id);
+        $result = $this->buildRepository(null)->find(Uuid::v7());
 
         $this::assertNull($result);
     }
@@ -48,9 +53,8 @@ class DoctrineMonsterRepositoryTest extends TestCase
     {
         $id = Uuid::v7();
         $monster = new Monster($id, new Category(), 2, 20, 'Fang', 'Beast');
-        $this->entityManager->method('find')->willReturn($monster);
 
-        $result = $this->repository->get($id);
+        $result = $this->buildRepository($monster)->get($id);
 
         $this::assertSame($monster, $result);
     }
@@ -58,22 +62,31 @@ class DoctrineMonsterRepositoryTest extends TestCase
     public function testGetThrowsWhenNotFound(): void
     {
         $id = Uuid::v7();
-        $this->entityManager->method('find')->willReturn(null);
 
         $this->expectException(MonsterNotFoundException::class);
         $this->expectExceptionMessage(sprintf('Monster with ID "%s" not found.', $id->toRfc4122()));
 
-        $this->repository->get($id);
+        $this->buildRepository(null)->get($id);
     }
 
     public function testSavePersistsEntity(): void
     {
-        $id = Uuid::v7();
-        $monster = new Monster($id, new Category(), 2, 20, 'Fang', 'Beast');
-        $mockEm = $this->createMock(EntityManagerInterface::class);
-        $mockEm->expects($this->once())->method('persist')->with($monster);
+        $monster = new Monster(Uuid::v7(), new Category(), 2, 20, 'Fang', 'Beast');
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects($this->once())->method('persist')->with($monster);
 
-        $repository = new DoctrineMonsterRepository($mockEm);
-        $repository->save($monster);
+        new DoctrineMonsterRepository($entityManager)->save($monster);
+    }
+
+    private function buildRepository(?Monster $queryResult): DoctrineMonsterRepository
+    {
+        $query = $this->createStub(Query::class);
+        $query->method('setParameter')->willReturnSelf();
+        $query->method('getOneOrNullResult')->willReturn($queryResult);
+
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+        $entityManager->method('createQuery')->willReturn($query);
+
+        return new DoctrineMonsterRepository($entityManager);
     }
 }

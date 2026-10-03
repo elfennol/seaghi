@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shop\Application\Enum;
+namespace App\Shop\Port\DataContract;
 
 /**
  * The codes of the message when there is a problem with the purchase.

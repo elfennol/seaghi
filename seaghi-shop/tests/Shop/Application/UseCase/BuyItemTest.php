@@ -8,6 +8,7 @@ use App\Shop\Application\UseCase\BuyItem;
 use App\Shop\Entity\Category;
 use App\Shop\Entity\Monster;
 use App\Shop\Port\DataContract\MonsterSoldMessage;
+use App\Shop\Port\DataContract\SaleRejectionReason;
 use App\Shop\Port\Out\MonsterRepositoryPort;
 use App\Shop\Port\Out\SendMessagePort;
 use App\Shop\Port\Out\TransactionPort;
@@ -55,6 +56,7 @@ class BuyItemTest extends TestCase
         $buyItemDto = $this->buyItem->buy(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         $this::assertFalse($buyItemDto->canBuy);
+        $this::assertSame(SaleRejectionReason::NOT_READY_TO_FIGHT, $buyItemDto->msgCode);
     }
 
     public function testWithDraw(): void
@@ -67,6 +69,7 @@ class BuyItemTest extends TestCase
         $buyDto = $this->buyItem->buy(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         $this::assertFalse($buyDto->canBuy);
+        $this::assertSame(SaleRejectionReason::DIFFICULT_END_OF_MONTH, $buyDto->msgCode);
     }
 
     public function testMarkAsUnavailable(): void
@@ -82,6 +85,7 @@ class BuyItemTest extends TestCase
 
         $this::assertFalse($monsterEntity->isAvailable());
         $this::assertTrue($buyDto->canBuy);
+        $this::assertNull($buyDto->msgCode);
     }
 
     public function testDoNotSendMessageWhenTransactionFails(): void
@@ -122,20 +126,16 @@ class BuyItemTest extends TestCase
         $category = new Category();
         $category->setCode(Category::CODE_SHAPESHIFTER_CHICKEN);
 
-        $initialLevel = min($level, 10);
         $monsterEntity = new Monster(
             Uuid::fromString('11111111-1111-1111-1111-111111111111'),
             $category,
-            $initialLevel,
+            $level,
             10,
             'first_name',
             'last_name',
         );
-        for ($i = $initialLevel; $i < $level; $i++) {
-            $monsterEntity->levelUp();
-        }
         if (!$isAvailable) {
-            $monsterEntity->makeUnavailable();
+            $monsterEntity->markAsSold();
         }
         if ($isSick) {
             $monsterEntity->makeSick();

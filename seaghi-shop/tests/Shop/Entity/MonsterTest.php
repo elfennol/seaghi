@@ -49,7 +49,7 @@ class MonsterTest extends TestCase
     public function testInvalidLevelThrows(int $level): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Level must be between 1 and 10.');
+        $this->expectExceptionMessage('Level must be greater than or equal to 1.');
 
         new Monster(Uuid::v7(), $this->category, $level, 50, 'Fang', 'Beast');
     }
@@ -59,7 +59,6 @@ class MonsterTest extends TestCase
         return [
             'level zero' => [0],
             'negative level' => [-1],
-            'level 11' => [11],
         ];
     }
 
@@ -70,10 +69,10 @@ class MonsterTest extends TestCase
         $this::assertTrue($monster->isReadyToFight());
     }
 
-    public function testNotReadyWhenUnavailable(): void
+    public function testNotReadyWhenSold(): void
     {
         $monster = new Monster(Uuid::v7(), $this->category, 5, 100, 'Fang', 'Beast');
-        $monster->makeUnavailable();
+        $monster->markAsSold();
 
         $this::assertFalse($monster->isReadyToFight());
     }
@@ -91,6 +90,7 @@ class MonsterTest extends TestCase
         $monster = new Monster(Uuid::v7(), $this->category, 10, 100, 'Fang', 'Beast');
         $monster->levelUp();
 
+        $this::assertSame(11, $monster->getLevel());
         $this::assertFalse($monster->isReadyToFight());
     }
 
@@ -103,10 +103,10 @@ class MonsterTest extends TestCase
         $this::assertFalse($monster->isAvailable());
     }
 
-    public function testMarkAsSoldFailsWhenNotReady(): void
+    public function testCannotBeSoldTwice(): void
     {
         $monster = new Monster(Uuid::v7(), $this->category, 5, 100, 'Fang', 'Beast');
-        $monster->makeUnavailable();
+        $monster->markAsSold();
 
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Cannot sell a monster that is not ready to fight.');

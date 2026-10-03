@@ -46,8 +46,8 @@ class Monster
         if ($price < 0) {
             throw new InvalidArgumentException('Price must be greater than or equal to 0.');
         }
-        if ($level < 1 || $level > 10) {
-            throw new InvalidArgumentException('Level must be between 1 and 10.');
+        if ($level < 1) {
+            throw new InvalidArgumentException('Level must be greater than or equal to 1.');
         }
     }
 
@@ -118,10 +118,5 @@ class Monster
     public function makeSick(): void
     {
         $this->sick = true;
-    }
-
-    public function makeUnavailable(): void
-    {
-        $this->available = false;
     }
 }

@@ -12,8 +12,7 @@ use InvalidArgumentException;
  * The player is not allowed to see a monster with a level > 10 in the list.
  * In the future some rights may be defined to allow some players to see these monsters.
  *
- * The minimum level is 1. If not given, then it is set to 1.
- * The maximum level is 10. If level > 10 is given, then it is set to 10.
+ * The requested levels must be between 1 and 10, otherwise the request is rejected.
  */
 readonly class ListItem
 {

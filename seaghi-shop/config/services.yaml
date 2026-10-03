@@ -25,12 +25,6 @@ services:
         resource: '../src/Shop/Infrastructure/HttpApi/Controller/'
         tags: [ 'controller.service_arguments']
 
-    get_property_normalizer:
-        class: Symfony\Component\Serializer\Normalizer\PropertyNormalizer
-        arguments: ['@serializer.mapping.class_metadata_factory',
-                    '@serializer.name_converter.camel_case_to_snake_case']
-        tags: [serializer.normalizer]
-
     Symfony\Component\Messenger\Transport\Serialization\Serializer:
         arguments:
             $format: 'json'

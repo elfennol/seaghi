@@ -39,7 +39,7 @@ dot -T svg -o overview.svg overview.gv
 
 ```
 ├── Application
-│   ├── Enum                # Domain enumerations
+│   ├── Enum                # Enumerations used by use cases and rules
 │   ├── Rule                # Business rules and calculations
 │   └── UseCase             # Functional use cases (concrete, directly called by controllers)
 ├── Entity                  # Rich Domain / ORM Entities & Value Objects (Invariants & State transitions)
@@ -117,6 +117,7 @@ Immutable DTOs exchanged across layer boundaries:
 - Use Case inputs and outputs (e.g. `BuyItemDto`), which also serve as the public API response contracts returned by controllers.
 - CQRS read projections (e.g. `SearchMonsterDto`).
 - Asynchronous message data holders dispatched to message brokers (e.g. `MonsterSoldMessage`).
+- Enumerations that are part of a contract (e.g. `SaleRejectionReason` in `BuyItemDto`). An enumeration describing an entity state belongs in `Entity`, because `Entity` and `Port` cannot depend on `Application`.
 - We do not distinguish between `DataContract` and `MessageContract`: all are immutable data transfer objects (DTOs) without behavioral methods. `SendMessagePort::send(object $message)` accepts any message DTO directly without requiring empty marker interfaces.
 
 ## What is a (bounded) context?
@@ -230,7 +231,7 @@ For outbound interfaces in `Port/Out` (`MonsterRepositoryPort`, `TransactionPort
 Important rule: **throw early, catch late**.
 
 1. **Expected Business Outcomes vs Exceptions:**
-   - Prefer returning typed Result DTOs (e.g. `BuyItemDto(success: false, rejectionReason: SaleRejectionReason::NOT_READY_TO_FIGHT)`) for predictable business rejections (inspired by `Result<T, E>` in languages like Rust). Avoid using exceptions as normal control flow.
+   - Prefer returning typed Result DTOs (e.g. `BuyItemDto::rejected($id, SaleRejectionReason::NOT_READY_TO_FIGHT)`) for predictable business rejections (inspired by `Result<T, E>` in languages like Rust). Avoid using exceptions as normal control flow.
    - Reserve Exceptions for broken invariants (`InvalidArgumentException`, `LogicException`) or missing resources (`MonsterNotFoundException`).
 2. **Avoid Exception Proliferation:**
    - Do not create a separate exception class for every situation. Leverage standard PHP exceptions, and introduce custom domain exceptions only when distinct recovery or handling logic is needed.
@@ -321,7 +322,7 @@ Do not fear duplicating code between context. Do not create common code between 
 Validations are divided into three distinct levels:
 
 1. **Infrastructure (Input & Format Validation):** Technical input validation on DTOs/Requests via attributes or constraints (e.g. valid JSON format, non-empty string, valid UUID format).
-2. **Entity & Value Objects (Domain Invariants):** Invariants that must be true at all times (e.g. a level cannot be negative, a sick monster cannot fight, price must be greater than zero). Protected by private constructors, Value Objects, and entity business methods.
+2. **Entity & Value Objects (Domain Invariants):** Invariants that must be true at all times (e.g. a level is at least 1, a sick monster cannot fight, a price cannot be negative). Protected by private constructors, Value Objects, and entity business methods.
 3. **Application (Contextual Business Rules & Policies):** Complex business rules involving external collaborators or multi-entity coordination (e.g. checking customer balance against an account API, verifying battle season rules).
 
 ## Use a tool to check the dependencies
