@@ -32,7 +32,7 @@ readonly class MonsterSoldMessageHandler
             return;
         }
 
-        $monster = $this->spawnMonster->spawn(
+        $monster = $this->spawnMonster->execute(
             $message->firstName,
             $message->lastName,
             $message->categoryCode,

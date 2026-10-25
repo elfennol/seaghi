@@ -29,7 +29,7 @@ class HitMonsterTest extends TestCase
 
         $this->hitMonster
             ->expects($this->once())
-            ->method('hit')
+            ->method('execute')
             ->with($monsterId)
             ->willReturn($expectedDto);
 

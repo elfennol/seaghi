@@ -30,7 +30,7 @@ class ListMonsterTest extends TestCase
 
         $this->listMonster
             ->expects($this->once())
-            ->method('list')
+            ->method('execute')
             ->willReturn($expected);
 
         $actual = ($this->controller)();

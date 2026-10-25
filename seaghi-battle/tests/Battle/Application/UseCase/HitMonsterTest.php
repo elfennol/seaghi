@@ -61,7 +61,7 @@ class HitMonsterTest extends TestCase
         $this->monsterRepository->method('get')
             ->willReturn($this->buildMonster($defense));
 
-        $this::assertEquals($expectedHealth, $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
+        $this::assertEquals($expectedHealth, $this->hitMonster->execute(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
     }
 
     /**
@@ -78,7 +78,7 @@ class HitMonsterTest extends TestCase
         $this->monsterRepository->method('get')
             ->willReturn($this->buildMonster($defense));
 
-        $this::assertEquals($expectedHealth, $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
+        $this::assertEquals($expectedHealth, $this->hitMonster->execute(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
     }
 
     /**
@@ -98,7 +98,7 @@ class HitMonsterTest extends TestCase
             Effect::CODE_SERIOUS_INJURY => $seriousInjuryEffect,
         ]);
 
-        $hitResult = $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
+        $hitResult = $this->hitMonster->execute(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
         $this::assertEquals(10, $hitResult->currentHealth);
         $this::assertContains(Effect::CODE_SERIOUS_INJURY, $hitResult->effects);
     }
@@ -120,7 +120,7 @@ class HitMonsterTest extends TestCase
             Effect::CODE_BADASS => $badassEffect,
         ]);
 
-        $hitResult = $this->hitMonster->hit(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
+        $hitResult = $this->hitMonster->execute(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
         $this::assertContains(Effect::CODE_BADASS, $hitResult->effects);
     }
 

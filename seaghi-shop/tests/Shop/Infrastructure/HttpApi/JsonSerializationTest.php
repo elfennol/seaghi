@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Shop\Infrastructure\HttpApi;
 
-use App\Shop\Port\DataContract\BuyItemDto;
+use App\Shop\Port\DataContract\BuyMonsterDto;
 use App\Shop\Port\DataContract\SaleRejectionReason;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -51,7 +51,7 @@ class JsonSerializationTest extends TestCase
         $id = Uuid::fromString('01a0ee62-5e9e-7f25-a82e-405e450ba3ee');
 
         $json = $this->serializer()->serialize(
-            BuyItemDto::rejected($id, SaleRejectionReason::NOT_READY_TO_FIGHT),
+            BuyMonsterDto::rejected($id, SaleRejectionReason::NOT_READY_TO_FIGHT),
             'json',
         );
 

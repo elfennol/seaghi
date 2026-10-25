@@ -16,7 +16,7 @@ readonly class ShowMonster
     ) {
     }
 
-    public function show(Uuid $monsterId): ShowMonsterDto
+    public function execute(Uuid $monsterId): ShowMonsterDto
     {
         $monster = $this->monsterRepository->get($monsterId);
 

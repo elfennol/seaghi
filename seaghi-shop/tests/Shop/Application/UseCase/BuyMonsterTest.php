@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Shop\Application\UseCase;
 
-use App\Shop\Application\UseCase\BuyItem;
+use App\Shop\Application\UseCase\BuyMonster;
 use App\Shop\Entity\Category;
 use App\Shop\Entity\Monster;
 use App\Shop\Port\DataContract\MonsterSoldMessage;
@@ -18,9 +18,9 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Uid\Uuid;
 
-class BuyItemTest extends TestCase
+class BuyMonsterTest extends TestCase
 {
-    private BuyItem $buyItem;
+    private BuyMonster $buyMonster;
     private MonsterRepositoryPort $monsterRepository;
     private WithdrawFromAccountPort $withdrawFromAccount;
     private SendMessagePort $sendMessage;
@@ -34,7 +34,7 @@ class BuyItemTest extends TestCase
         $this->transaction = $this->createStub(TransactionPort::class);
         $this->transaction->method('run')->willReturnCallback(static fn (callable $operation): mixed => $operation());
 
-        $this->buyItem = new BuyItem(
+        $this->buyMonster = new BuyMonster(
             $this->monsterRepository,
             $this->withdrawFromAccount,
             $this->sendMessage,
@@ -53,10 +53,10 @@ class BuyItemTest extends TestCase
         $this->withdrawFromAccount->expects($this->never())->method('withDraw');
         $this->sendMessage->expects($this->never())->method('send');
 
-        $buyItemDto = $this->buyItem->buy(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
+        $buyMonsterDto = $this->buyMonster->execute(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
-        $this::assertFalse($buyItemDto->canBuy);
-        $this::assertSame(SaleRejectionReason::NOT_READY_TO_FIGHT, $buyItemDto->msgCode);
+        $this::assertFalse($buyMonsterDto->canBuy);
+        $this::assertSame(SaleRejectionReason::NOT_READY_TO_FIGHT, $buyMonsterDto->msgCode);
     }
 
     public function testWithDraw(): void
@@ -66,7 +66,7 @@ class BuyItemTest extends TestCase
         $this->withdrawFromAccount->expects($this->once())->method('withDraw')->willReturn(false);
         $this->sendMessage->expects($this->never())->method('send');
 
-        $buyDto = $this->buyItem->buy(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
+        $buyDto = $this->buyMonster->execute(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         $this::assertFalse($buyDto->canBuy);
         $this::assertSame(SaleRejectionReason::DIFFICULT_END_OF_MONTH, $buyDto->msgCode);
@@ -81,7 +81,7 @@ class BuyItemTest extends TestCase
             ->method('send')
             ->with($this->isInstanceOf(MonsterSoldMessage::class));
 
-        $buyDto = $this->buyItem->buy(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
+        $buyDto = $this->buyMonster->execute(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
 
         $this::assertFalse($monsterEntity->isAvailable());
         $this::assertTrue($buyDto->canBuy);
@@ -99,7 +99,7 @@ class BuyItemTest extends TestCase
 
         $this->sendMessage->expects($this->never())->method('send');
 
-        $buyItem = new BuyItem(
+        $buyMonster = new BuyMonster(
             $this->monsterRepository,
             $this->withdrawFromAccount,
             $this->sendMessage,
@@ -109,7 +109,7 @@ class BuyItemTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('DB error');
 
-        $buyItem->buy(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
+        $buyMonster->execute(Uuid::fromString('11111111-1111-1111-1111-111111111111'));
     }
 
     public static function notReadyToFightProvider(): array

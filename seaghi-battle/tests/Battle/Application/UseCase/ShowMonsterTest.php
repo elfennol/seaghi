@@ -32,7 +32,7 @@ class ShowMonsterTest extends TestCase
         $this->monsterRepository->method('get')
             ->willReturn($this->buildMonster($id, 'my_first_name1', 'my_last_name1'));
 
-        $monster = $this->showMonster->show($id);
+        $monster = $this->showMonster->execute($id);
 
         $this::assertEquals($id, $monster->id);
         $this::assertEquals('my_first_name1 my_last_name1', $monster->name);

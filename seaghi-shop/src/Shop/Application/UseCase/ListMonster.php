@@ -14,7 +14,7 @@ use InvalidArgumentException;
  *
  * The requested levels must be between 1 and 10, otherwise the request is rejected.
  */
-readonly class ListItem
+readonly class ListMonster
 {
     public function __construct(
         private SearchMonsterPort $searchMonster,
@@ -24,7 +24,7 @@ readonly class ListItem
     /**
      * @return iterable<SearchMonsterDto>
      */
-    public function list(int $levelMin, int $levelMax): iterable
+    public function execute(int $levelMin, int $levelMax): iterable
     {
         if ($levelMin < 1 || $levelMin > 10 || $levelMax < 1 || $levelMax > 10) {
             throw new InvalidArgumentException('Allowed levels are between 1 and 10.');

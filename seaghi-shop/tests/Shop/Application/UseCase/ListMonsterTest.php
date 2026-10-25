@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Shop\Application\UseCase;
 
-use App\Shop\Application\UseCase\ListItem;
+use App\Shop\Application\UseCase\ListMonster;
 use App\Shop\Port\DataContract\SearchMonsterDto;
 use App\Shop\Port\Out\SearchMonsterPort;
 use InvalidArgumentException;
@@ -15,12 +15,12 @@ use Symfony\Component\Uid\Uuid;
 class ListMonsterTest extends TestCase
 {
     private SearchMonsterPort $searchMonster;
-    private ListItem $listItem;
+    private ListMonster $listMonster;
 
     protected function setUp(): void
     {
         $this->searchMonster = $this->createStub(SearchMonsterPort::class);
-        $this->listItem = new ListItem($this->searchMonster);
+        $this->listMonster = new ListMonster($this->searchMonster);
     }
 
     public function testList(): void
@@ -42,8 +42,8 @@ class ListMonsterTest extends TestCase
             ->with(1, 10)
             ->willReturn([$dto]);
 
-        $listItem = new ListItem($mockSearch);
-        $result = $listItem->list(1, 10);
+        $listMonster = new ListMonster($mockSearch);
+        $result = $listMonster->execute(1, 10);
 
         $this::assertSame([$dto], $result);
     }
@@ -54,7 +54,7 @@ class ListMonsterTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Allowed levels are between 1 and 10.');
 
-        $this->listItem->list($levelMin, $levelMax);
+        $this->listMonster->execute($levelMin, $levelMax);
     }
 
     /**

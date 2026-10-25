@@ -4,32 +4,32 @@ declare(strict_types=1);
 
 namespace App\Tests\Shop\Infrastructure\HttpApi\Controller;
 
-use App\Shop\Application\UseCase\BuyItem;
-use App\Shop\Infrastructure\HttpApi\Controller\BuyMonster;
-use App\Shop\Port\DataContract\BuyItemDto;
+use App\Shop\Application\UseCase\BuyMonster;
+use App\Shop\Infrastructure\HttpApi\Controller\BuyMonster as BuyMonsterController;
+use App\Shop\Port\DataContract\BuyMonsterDto;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
 class BuyMonsterTest extends TestCase
 {
-    private BuyItem&MockObject $buyItem;
-    private BuyMonster $controller;
+    private BuyMonster&MockObject $buyMonster;
+    private BuyMonsterController $controller;
 
     protected function setUp(): void
     {
-        $this->buyItem = $this->createMock(BuyItem::class);
-        $this->controller = new BuyMonster($this->buyItem);
+        $this->buyMonster = $this->createMock(BuyMonster::class);
+        $this->controller = new BuyMonsterController($this->buyMonster);
     }
 
-    public function testInvokeDelegatesToBuyItem(): void
+    public function testInvokeDelegatesToBuyMonster(): void
     {
         $monsterId = Uuid::v7();
-        $expectedDto = BuyItemDto::accepted($monsterId);
+        $expectedDto = BuyMonsterDto::accepted($monsterId);
 
-        $this->buyItem
+        $this->buyMonster
             ->expects($this->once())
-            ->method('buy')
+            ->method('execute')
             ->with($monsterId)
             ->willReturn($expectedDto);
 

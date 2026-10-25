@@ -19,7 +19,7 @@ readonly class HealMonster
     ) {
     }
 
-    public function heal(Uuid $monsterId): HealMonsterDto
+    public function execute(Uuid $monsterId): HealMonsterDto
     {
         $monster = $this->monsterRepository->get($monsterId);
 

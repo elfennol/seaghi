@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Shop\Infrastructure\HttpApi\Controller;
 
-use App\Shop\Application\UseCase\ListItem;
-use App\Shop\Infrastructure\HttpApi\Controller\ListMonster;
+use App\Shop\Application\UseCase\ListMonster;
+use App\Shop\Infrastructure\HttpApi\Controller\ListMonster as ListMonsterController;
 use App\Shop\Infrastructure\HttpApi\Dto\MonsterListRequest;
 use App\Shop\Port\DataContract\SearchMonsterDto;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -14,13 +14,13 @@ use Symfony\Component\Uid\Uuid;
 
 class ListMonsterTest extends TestCase
 {
-    private ListItem&MockObject $listItem;
-    private ListMonster $controller;
+    private ListMonster&MockObject $listMonster;
+    private ListMonsterController $controller;
 
     protected function setUp(): void
     {
-        $this->listItem = $this->createMock(ListItem::class);
-        $this->controller = new ListMonster($this->listItem);
+        $this->listMonster = $this->createMock(ListMonster::class);
+        $this->controller = new ListMonsterController($this->listMonster);
     }
 
     /**
@@ -44,9 +44,9 @@ class ListMonsterTest extends TestCase
             ),
         ];
 
-        $this->listItem
+        $this->listMonster
             ->expects($this->once())
-            ->method('list')
+            ->method('execute')
             ->with(1, 5)
             ->willReturn($expectedMonsters);
 
@@ -64,9 +64,9 @@ class ListMonsterTest extends TestCase
     {
         $request = new MonsterListRequest(levelMin: 50, levelMax: 100);
 
-        $this->listItem
+        $this->listMonster
             ->expects($this->once())
-            ->method('list')
+            ->method('execute')
             ->with(50, 100)
             ->willReturn([]);
 
@@ -84,9 +84,9 @@ class ListMonsterTest extends TestCase
     {
         $request = new MonsterListRequest(levelMin: 10, levelMax: 10);
 
-        $this->listItem
+        $this->listMonster
             ->expects($this->once())
-            ->method('list')
+            ->method('execute')
             ->with(10, 10)
             ->willReturn([]);
 

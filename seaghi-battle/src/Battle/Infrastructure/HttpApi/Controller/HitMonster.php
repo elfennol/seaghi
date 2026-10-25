@@ -19,6 +19,6 @@ readonly class HitMonster
     #[Route('/monster/{monsterId}/hit', methods: ['PUT'])]
     public function __invoke(Uuid $monsterId): HitMonsterDto
     {
-        return $this->hitMonster->hit($monsterId);
+        return $this->hitMonster->execute($monsterId);
     }
 }

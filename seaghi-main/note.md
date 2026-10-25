@@ -102,7 +102,7 @@ To prevent entities from growing into "God objects":
 Port represents the boundary between Application and Infrastructure:
 
 ### 1. Inbound: No 1-to-1 `Port\In` Interfaces (Pragmatic Inward Dependencies)
-We intentionally **do not create 1-to-1 interfaces for Use Cases** (no `BuyItemPort` for `BuyItem`).
+We intentionally **do not create 1-to-1 interfaces for Use Cases** (no `BuyMonsterPort` for `BuyMonster`).
 - **Clean Architecture Dependency Rule:** Outer delivery mechanisms (Controllers, CLI commands, Message Handlers) naturally depend **inward** on the Application core (`Controller -> UseCase`).
 - **KISS & Zero Boilerplate:** Business Use Cases almost never have multiple implementations in production. Dropping `Port\In` interfaces eliminates redundant single-method interfaces and allows Symfony to autowire Use Cases directly with zero manual configuration in `services.yaml`.
 - **Testing:** Controllers can easily stub or mock concrete Use Cases in PHPUnit without requiring an interface.
@@ -114,10 +114,10 @@ The Application layer must never depend on external technical infrastructure (Do
 
 ### 3. DataContracts (`Port/DataContract`)
 Immutable DTOs exchanged across layer boundaries:
-- Use Case inputs and outputs (e.g. `BuyItemDto`), which also serve as the public API response contracts returned by controllers.
+- Use Case inputs and outputs (e.g. `BuyMonsterDto`), which also serve as the public API response contracts returned by controllers.
 - CQRS read projections (e.g. `SearchMonsterDto`).
 - Asynchronous message data holders dispatched to message brokers (e.g. `MonsterSoldMessage`).
-- Enumerations that are part of a contract (e.g. `SaleRejectionReason` in `BuyItemDto`). An enumeration describing an entity state belongs in `Entity`, because `Entity` and `Port` cannot depend on `Application`.
+- Enumerations that are part of a contract (e.g. `SaleRejectionReason` in `BuyMonsterDto`). An enumeration describing an entity state belongs in `Entity`, because `Entity` and `Port` cannot depend on `Application`.
 - We do not distinguish between `DataContract` and `MessageContract`: all are immutable data transfer objects (DTOs) without behavioral methods. `SendMessagePort::send(object $message)` accepts any message DTO directly without requiring empty marker interfaces.
 
 ## What is a (bounded) context?
@@ -184,7 +184,9 @@ Minimal code here (logs + a method for validation + a method for processing).
 
 ## One public method in a use case
 
-Prefer one public method in a use case. It's easier to see use cases at a glance just by looking at the class names.
+One use case = one class, named after the business action, with a single public method. This method has the same conventional name in every use case of the project (here `execute`), never a name that repeats the class's: `$this->buyMonster->execute($monsterId)`, not `$this->buyMonster->buy($monsterId)`.
+
+The action is named once, by the class. It's easier to see use cases at a glance just by looking at the class names.
 
 ## A service does not contain a state
 
@@ -231,7 +233,7 @@ For outbound interfaces in `Port/Out` (`MonsterRepositoryPort`, `TransactionPort
 Important rule: **throw early, catch late**.
 
 1. **Expected Business Outcomes vs Exceptions:**
-   - Prefer returning typed Result DTOs (e.g. `BuyItemDto::rejected($id, SaleRejectionReason::NOT_READY_TO_FIGHT)`) for predictable business rejections (inspired by `Result<T, E>` in languages like Rust). Avoid using exceptions as normal control flow.
+   - Prefer returning typed Result DTOs (e.g. `BuyMonsterDto::rejected($id, SaleRejectionReason::NOT_READY_TO_FIGHT)`) for predictable business rejections (inspired by `Result<T, E>` in languages like Rust). Avoid using exceptions as normal control flow.
    - Reserve Exceptions for broken invariants (`InvalidArgumentException`, `LogicException`) or missing resources (`MonsterNotFoundException`).
 2. **Avoid Exception Proliferation:**
    - Do not create a separate exception class for every situation. Leverage standard PHP exceptions, and introduce custom domain exceptions only when distinct recovery or handling logic is needed.

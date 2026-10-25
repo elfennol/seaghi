@@ -19,6 +19,6 @@ readonly class ShowMonster
     #[Route('/monster/{monsterId}', methods: ['GET'])]
     public function __invoke(Uuid $monsterId): ShowMonsterDto
     {
-        return $this->showMonster->show($monsterId);
+        return $this->showMonster->execute($monsterId);
     }
 }

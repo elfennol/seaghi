@@ -24,7 +24,7 @@ readonly class HitMonster
     ) {
     }
 
-    public function hit(Uuid $monsterId): HitMonsterDto
+    public function execute(Uuid $monsterId): HitMonsterDto
     {
         $monster = $this->monsterRepository->get($monsterId);
 

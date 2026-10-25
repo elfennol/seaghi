@@ -45,7 +45,7 @@ class MonsterSoldMessageHandlerTest extends TestCase
         $message = new MonsterSoldMessage('John', 'Doe', 'category_code', 1);
         $this->spawnMonster
             ->expects($this->once())
-            ->method('spawn')
+            ->method('execute')
             ->willReturn(new SpawnMonsterDto(Uuid::fromString('11111111-1111-1111-1111-111111111111'), 40, 10));
 
         ($this->messageHandler)($message);
@@ -62,7 +62,7 @@ class MonsterSoldMessageHandlerTest extends TestCase
         $this->validator->method('assertValid')->willThrowException(new Exception());
         $this->spawnMonster
             ->expects($this->never())
-            ->method('spawn');
+            ->method('execute');
 
         ($this->messageHandler)($message);
     }

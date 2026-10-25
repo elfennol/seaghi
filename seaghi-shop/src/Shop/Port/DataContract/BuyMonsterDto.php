@@ -11,7 +11,7 @@ use Symfony\Component\Uid\Uuid;
  *
  * A purchase is either accepted (no message code) or rejected with a reason.
  */
-readonly class BuyItemDto
+readonly class BuyMonsterDto
 {
     private function __construct(
         public Uuid $id,

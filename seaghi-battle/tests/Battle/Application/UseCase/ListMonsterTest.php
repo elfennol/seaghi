@@ -36,7 +36,7 @@ class ListMonsterTest extends TestCase
             ->method('list')
             ->willReturn($expected);
 
-        $monsters = $this->listMonster->list();
+        $monsters = $this->listMonster->execute();
 
         $this::assertSame($expected, $monsters);
     }

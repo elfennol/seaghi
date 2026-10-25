@@ -49,7 +49,7 @@ class SpawnMonsterTest extends TestCase
     #[DataProvider('spawnProvider')]
     public function testSpawn(int $expectedDefense, int $expectedHealth, Category $category, int $level): void
     {
-        $spawnMonster = $this->spawnMonster->spawn(
+        $spawnMonster = $this->spawnMonster->execute(
             'my_first_name',
             'my_last_name',
             $category->value,
@@ -70,7 +70,7 @@ class SpawnMonsterTest extends TestCase
     {
         $this->expectException(Exception::class);
 
-        $this->spawnMonster->spawn(
+        $this->spawnMonster->execute(
             'my_first_name',
             'my_last_name',
             Category::WILD_SQUIRREL->value,

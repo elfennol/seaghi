@@ -17,7 +17,7 @@ readonly class ListMonster
     /**
      * @return iterable<ListMonsterDto>
      */
-    public function list(): iterable
+    public function execute(): iterable
     {
         return $this->listMonster->list();
     }

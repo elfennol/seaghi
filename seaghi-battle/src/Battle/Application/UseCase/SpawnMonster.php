@@ -23,7 +23,7 @@ readonly class SpawnMonster
     ) {
     }
 
-    public function spawn(string $firstName, string $lastName, string $category, int $level): SpawnMonsterDto
+    public function execute(string $firstName, string $lastName, string $category, int $level): SpawnMonsterDto
     {
         if ($level < 2) {
             throw new Exception('Monsters below level 2 are not accepted for battle.');

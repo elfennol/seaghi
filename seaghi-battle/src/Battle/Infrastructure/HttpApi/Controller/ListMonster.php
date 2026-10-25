@@ -21,6 +21,6 @@ readonly class ListMonster
     #[Route('/monster/list', methods: ['GET'])]
     public function __invoke(): iterable
     {
-        return $this->listMonster->list();
+        return $this->listMonster->execute();
     }
 }

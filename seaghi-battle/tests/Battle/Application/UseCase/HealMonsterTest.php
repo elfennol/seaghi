@@ -54,7 +54,7 @@ class HealMonsterTest extends TestCase
         $this->monsterRepository->method('get')
             ->willReturn($monster);
 
-        $this::assertEquals($expectedHealth, $this->healMonster->heal(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
+        $this::assertEquals($expectedHealth, $this->healMonster->execute(Uuid::fromString('11111111-1111-1111-1111-111111111111'))->currentHealth);
     }
 
     /**
